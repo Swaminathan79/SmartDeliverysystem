@@ -1,4 +1,5 @@
-﻿using RouteService.DTOs;
+﻿using PackageService.Validator;
+using RouteService.DTOs;
 
 namespace PackageService.Services;
 
@@ -28,6 +29,8 @@ public class RouteValidationService : IRouteValidationService
         {
             _logger.LogDebug("Validating route existence: RouteId {RouteId}", routeId);
 
+            RouteServiceValidator.ValidateRouteId(routeId);
+
             var response = await _httpClient.GetAsync($"/api/routes/{routeId}");
 
             var exists = response.IsSuccessStatusCode;
@@ -55,6 +58,8 @@ public class RouteValidationService : IRouteValidationService
     {
         try
         {
+            RouteServiceValidator.ValidateRouteAndDriver(routeId, driverId);
+
             var response = await _httpClient.GetAsync($"/api/routes/{routeId}");
 
             if (!response.IsSuccessStatusCode)
@@ -82,6 +87,9 @@ public class RouteValidationService : IRouteValidationService
     {
         try
         {
+            RouteServiceValidator.ValidateRouteId(routeId);
+
+
             var response = await _httpClient.GetAsync($"/api/routes/{routeId}");
 
             if (!response.IsSuccessStatusCode)

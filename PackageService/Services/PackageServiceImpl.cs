@@ -40,6 +40,8 @@ public class PackageServiceImpl : IPackageService
     
     public async Task<PackageDto?> GetByIdAsync(int id)
     {
+        PackageServiceValidator.ValidateId(id);
+
         var package = await _repository.GetByIdAsync(id);
         
         if (package == null)
@@ -53,8 +55,10 @@ public class PackageServiceImpl : IPackageService
     
     public async Task<PackageDto?> GetByTrackingNumberAsync(string trackingNumber)
     {
-        _logger.LogDebug("Getting package by tracking number: {TrackingNumber}", trackingNumber);
-        
+        //_logger.LogDebug("Getting package by tracking number: {TrackingNumber}", trackingNumber);
+
+        PackageServiceValidator.ValidateTrackingNumber(trackingNumber);
+
         var package = await _repository.GetByTrackingNumberAsync(trackingNumber);
         
         if (package == null)
@@ -68,6 +72,9 @@ public class PackageServiceImpl : IPackageService
     
     public async Task<PaginatedResult<PackageDto>> GetAllAsync(int pageNumber, int pageSize)
     {
+        PackageServiceValidator.ValidatePagination(pageNumber, pageSize);
+
+
         var (packages, totalCount) = await _repository.SearchAsync(
             null, null, null, pageNumber, pageSize);
         
@@ -86,8 +93,10 @@ public class PackageServiceImpl : IPackageService
         int pageNumber, 
         int pageSize)
     {
-        _logger.LogDebug("Fetching packages for customer {CustomerId}", customerId);
-        
+        _logger.LogInformation("Fetching packages for customer {CustomerId}", customerId);
+
+        PackageServiceValidator.ValidatePagination(pageNumber, pageSize);
+
         var (packages, totalCount) = await _repository.SearchAsync(
             null, null, customerId, pageNumber, pageSize);
         
@@ -103,12 +112,15 @@ public class PackageServiceImpl : IPackageService
     
     public async Task<PackageDto> CreateAsync(CreatePackageDto dto)
     {
+
         _logger.LogInformation(
             "Creating package for customer {CustomerId} on route {RouteId}",
             dto.CustomerId,
             dto.RouteId
         );
-        
+
+        PackageServiceValidator.ValidateCreateDto(dto);
+
         // Validate route exists via RouteService
         var routeExists = await _routeValidationService.ValidateRouteExistsAsync(dto.RouteId);
         
@@ -148,6 +160,10 @@ public class PackageServiceImpl : IPackageService
     
     public async Task<PackageDto> UpdateAsync(int id, UpdatePackageDto dto)
     {
+        PackageServiceValidator.ValidateId(id);
+        PackageServiceValidator.ValidateUpdateDto(dto);
+
+
         var package = await _repository.GetByIdAsync(id);
         
         if (package == null)
@@ -220,7 +236,9 @@ public class PackageServiceImpl : IPackageService
             newStatus,
             driverId
         );
-        
+
+        PackageServiceValidator.ValidateStatusUpdate(id);
+
         var package = await _repository.GetByIdAsync(id);
         
         if (package == null)
@@ -301,7 +319,9 @@ public class PackageServiceImpl : IPackageService
             status,
             customerId
         );
-        
+
+        PackageServiceValidator.ValidatePagination(pageNumber, pageSize);
+
         var (packages, totalCount) = await _repository.SearchAsync(
             trackingNumber,
             status,
