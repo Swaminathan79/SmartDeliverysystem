@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Delivery System - Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8f9fa;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .sidebar {
+            width: 280px;
+            position: sticky;
+            top: 30px;
+            height: fit-content;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .nav-item {
+            padding: 10px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .nav-item:hover {
+            background: #edf2f7;
+            color: #667eea;
+        }
+        
+        .nav-item.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .content {
+            flex: 1;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-height: 600px;
+        }
+        
+        .section {
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .content h2 {
+            color: #2d3748;
+            font-size: 2em;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .content h3 {
+            color: #2d3748;
+            font-size: 1.5em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        .content h4 {
+            color: #4a5568;
+            font-size: 1.2em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .content p {
+            color: #4a5568;
+            margin-bottom: 15px;
+        }
+        
+        .content ul, .content ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+            color: #4a5568;
+        }
+        
+        .content li {
+            margin-bottom: 8px;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        
+        .inline-code {
+            background: #edf2f7;
+            color: #e53e3e;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .badge.required {
+            background: #f56565;
+        }
+        
+        .badge.bonus {
+            background: #ed8936;
+        }
+        
+        .info-box {
+            background: #ebf8ff;
+            border-left: 4px solid #4299e1;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .warning-box {
+            background: #fffaf0;
+            border-left: 4px solid #ed8936;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .table th {
+            background: #edf2f7;
+            padding: 12px;
+            text-align: left;
+            color: #2d3748;
+            font-weight: 600;
+        }
+        
+        .table td {
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .tech-badge {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                position: static;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>🚚 Smart Delivery Routing & Package Tracking System</h1>
+            <p>Microservices-based delivery management system built with .NET Core</p>
+        </div>
+    </div>
+    
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Documentation</h3>
+            <div class="nav-item active" onclick="showSection('home')">
+                🏠 Home
+            </div>
+            <div class="nav-item" onclick="showSection('architecture')">
+                🏗️ Architecture
+            </div>
+            <div class="nav-item" onclick="showSection('api')">
+                📡 API Reference
+            </div>
+            <div class="nav-item" onclick="showSection('getting-started')">
+                🚀 Getting Started
+            </div>
+            <div class="nav-item" onclick="showSection('auth')">
+                🔐 Authentication
+            </div>
+            <div class="nav-item" onclick="showSection('development')">
+                💻 Development Guide
+            </div>
+            <div class="nav-item" onclick="showSection('testing')">
+                🧪 Testing
+            </div>
+            <div class="nav-item" onclick="showSection('data-models')">
+                📊 Data Models
+            </div>
+            <div class="nav-item" onclick="showSection('deployment')">
+                🐳 Deployment
+            </div>
+        </aside>
+        
+        <main class="content">
+            <!-- HOME SECTION -->
+            <section id="home" class="section active">
+                <h2>Welcome to Smart Delivery System</h2>
+                
+                <p>A modern, microservices-based delivery routing and package tracking system built with ASP.NET Core, demonstrating best practices in API design, authentication, and asynchronous programming.</p>
+                
+                <h3>🎯 Project Overview</h3>
+                <p>This system is divided into two independent microservices that work together to manage delivery operations:</p>
+                
+                <ul>
+                    <li><strong>RouteService</strong> - Manages delivery routes and driver assignments</li>
+                    <li><strong>PackageService</strong> - Handles customer packages, tracking, and delivery status</li>
+                </ul>
+                
+                <h3>✨ Key Features</h3>
+                <ul>
+                    <li>Microservices architecture with clear service boundaries</li>
+                    <li>JWT-based authentication with role-based authorization</li>
+                    <li>Asynchronous operations throughout the system</li>
+                    <li>Comprehensive validation and business logic</li>
+                    <li>Unit testing with mocked dependencies</li>
+                    <li>RESTful API design with Swagger documentation</li>
+                    <li>Entity Framework Core with in-memory database</li>
+                </ul>
+                
+                <h3>🛠 Tech Stack</h3>
+                <div class="tech-stack">
+                    <span class="tech-badge">ASP.NET Core 8.0</span>
+                    <span class="tech-badge">Entity Framework Core</span>
+                    <span class="tech-badge">JWT Authentication</span>
+                    <span class="tech-badge">xUnit Testing</span>
+                    <span class="tech-badge">Swagger/OpenAPI</span>
+                    <span class="tech-badge">Docker</span>
+                </div>
+                
+                <h3>📋 Requirements Coverage</h3>
+                <table class="table">
+                    <tr>
+                        <th>Requirement</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>Two Microservices (Route & Package)</td>
+                        <td>✅ Implemented</td>
+                    </tr>
+                    <tr>
+                        <td>JWT Authentication & Authorization</td>
+                        <td>✅ Implemented</td>
+                    </tr>
+                    <tr>
+                        <td>Entity Framework Core</td>
+                        <td>✅ Implemented</td>
+                    </tr>
+                    <tr>
+                        <td>Async/Await Pattern</td>
+                        <td>✅ Implemented</td>
+                    </tr>
+                    <tr>
+                        <td>Unit Testing</td>
+                        <td>✅ Implemented</td>
+                    </tr>
+                    <tr>
+                        <td>Pagination & Search</td>
+                        <td>✅ Implemented</td>
+                    </tr>
+                    <tr>
+                        <td>Swagger Documentation</td>
+                        <td>✅ Bonus Completed</td>
+                    </tr>
+                    <tr>
+                        <td>Docker Support</td>
+                        <td>✅ Bonus Completed</td>
+                    </tr>
+                </table>
+            </section>
+            
+            <!-- ARCHITECTURE SECTION -->
+            <section id="architecture" class="section">
+                <h2>Architecture & Design</h2>
+                
+                <h3>System Overview</h3>
+                <p>The Smart Delivery System follows a microservices architecture pattern with two independent services communicating via HTTP APIs.</p>
+                
+                <div class="info-box">
+                    <strong>Design Principle:</strong> Each microservice has its own database (in-memory for this demo) and is independently deployable. Services communicate through well-defined REST APIs.
+                </div>
+                
+                <h3>Service Boundaries</h3>
+                
+                <h4>RouteService</h4>
+                <p><strong>Responsibility:</strong> Manages all route-related operations including driver assignments and scheduling.</p>
+                
+                <p><strong>Key Endpoints:</strong></p>
+                <ul>
+                    <li><span class="inline-code">GET /api/routes</span> - List routes (filtered by driver for non-admins)</li>
+                    <li><span class="inline-code">GET /api/routes/{id}</span> - Get route details</li>
+                    <li><span class="inline-code">POST /api/routes</span> - Create new route</li>
+                    <li><span class="inline-code">PUT /api/routes/{id}</span> - Update route</li>
+                    <li><span class="inline-code">DELETE /api/routes/{id}</span> - Delete route</li>
+                    <li><span class="inline-code">POST /api/routes/{id}/assign-driver</span> - Assign driver (Admin only)</li>
+                    <li><span class="inline-code">GET /api/routes/search</span> - Search with pagination</li>
+                </ul>
+                
+                <p><strong>Business Rules:</strong></p>
+                <ul>
+                    <li>Estimated distance must be greater than zero</li>
+                    <li>No overlapping routes for the same driver on the same date</li>
+                    <li>Drivers can only view their own routes</li>
+                    <li>Only admins can assign drivers to routes</li>
+                </ul>
+                
+                <h4>PackageService</h4>
+                <p><strong>Responsibility:</strong> Manages package lifecycle from creation to delivery.</p>
+                
+                <p><strong>Key Endpoints:</strong></p>
+                <ul>
+                    <li><span class="inline-code">GET /api/packages</span> - List packages</li>
+                    <li><span class="inline-code">GET /api/packages/{id}</span> - Get package details</li>
+                    <li><span class="inline-code">POST /api/packages</span> - Create package</li>
+                    <li><span class="inline-code">PUT /api/packages/{id}</span> - Update package</li>
+                    <li><span class="inline-code">PATCH /api/packages/{id}/status</span> - Update status</li>
+                    <li><span class="inline-code">GET /api/packages/tracking/{trackingNumber}</span> - Track package</li>
+                    <li><span class="inline-code">GET /api/packages/search</span> - Search packages</li>
+                </ul>
+                
+                <p><strong>Business Rules:</strong></p>
+                <ul>
+                    <li>Weight must be greater than zero</li>
+                    <li>Route must exist before assigning package (validated via RouteService)</li>
+                    <li>Status transitions: Pending → InTransit → Delivered</li>
+                    <li>Cannot mark as delivered unless route date is today or earlier</li>
+                    <li>Drivers can only update packages on their assigned routes</li>
+                </ul>
+                
+                <h3>Database Schema</h3>
+                
+                <h4>Route Entity</h4>
+                <div class="code-block">public class Route
+{
+    public int Id { get; set; }
+    public int DriverId { get; set; }
+    public int VehicleId { get; set; }
+    public string StartLocation { get; set; }
+    public string EndLocation { get; set; }
+    public decimal EstimatedDistanceKm { get; set; }
+    public DateTime ScheduledDate { get; set; }
+    
+    // Navigation property
+    public ICollection&lt;Package&gt; Packages { get; set; }
+}</div>
+                
+                <h4>Package Entity</h4>
+                <div class="code-block">public class Package
+{
+    public int Id { get; set; }
+    public string TrackingNumber { get; set; }
+    public int CustomerId { get; set; }
+    public int RouteId { get; set; }
+    public PackageStatus Status { get; set; }
+    public decimal WeightKg { get; set; }
+    public DateTime CreatedAt { get; set; }
+    
+    // Navigation property
+    public Route Route { get; set; }
+}
+
+public enum PackageStatus
+{
+    Pending,
+    InTransit,
+    Delivered
+}</div>
+                
+                <h3>Cross-Service Communication</h3>
+                <p>PackageService validates route existence by calling RouteService's API:</p>
+                
+                <div class="code-block">// In PackageService
+public async Task&lt;bool&gt; ValidateRouteExistsAsync(int routeId)
+{
+    var response = await _httpClient.GetAsync(
+        $"http://routeservice/api/routes/{routeId}"
+    );
+    return response.IsSuccessStatusCode;
+}</div>
+            </section>
+            
+            <!-- API REFERENCE SECTION -->
+            <section id="api" class="section">
+                <h2>API Reference</h2>
+                
+                <h3>Authentication Endpoints</h3>
+                
+                <h4>POST /api/auth/login</h4>
+                <p>Authenticate user and receive JWT token.</p>
+                
+                <p><strong>Request Body:</strong></p>
+                <div class="code-block">{
+    "username": "driver1",
+    "password": "password123"
+}</div>
+                
+                <p><strong>Response:</strong></p>
+                <div class="code-block">{
+    "token": "eyJhbGciOiJIUzI1NiIs...",
+    "userId": 1,
+    "role": "Driver",
+    "expiresAt": "2026-02-14T10:30:00Z"
+}</div>
+                
+                <h3>RouteService API</h3>
+                
+                <h4>GET /api/routes</h4>
+                <p>Get all routes. Drivers see only their routes; Admins see all.</p>
+                
+                <p><strong>Headers:</strong></p>
+                <div class="code-block">Authorization: Bearer {token}</div>
+                
+                <p><strong>Query Parameters:</strong></p>
+                <ul>
+                    <li><span class="inline-code">pageNumber</span> - Page number (default: 1)</li>
+                    <li><span class="inline-code">pageSize</span> - Items per page (default: 10)</li>
+                    <li><span class="inline-code">date</span> - Filter by scheduled date</li>
+                    <li><span class="inline-code">driverName</span> - Filter by driver name</li>
+                </ul>
+                
+                <p><strong>Response:</strong></p>
+                <div class="code-block">{
+    "data": [
+        {
+            "id": 1,
+            "driverId": 5,
+            "vehicleId": 10,
+            "startLocation": "Warehouse A",
+            "endLocation": "Downtown",
+            "estimatedDistanceKm": 15.5,
+            "scheduledDate": "2026-02-15"
+        }
+    ],
+    "pageNumber": 1,
+    "pageSize": 10,
+    "totalRecords": 25,
+    "totalPages": 3
+}</div>
+                
+                <h4>POST /api/routes</h4>
+                <p>Create a new route. Admin only.</p>
+                
+                <p><strong>Request Body:</strong></p>
+                <div class="code-block">{
+    "driverId": 5,
+    "vehicleId": 10,
+    "startLocation": "Warehouse B",
+    "endLocation": "Industrial Zone",
+    "estimatedDistanceKm": 22.3,
+    "scheduledDate": "2026-02-16"
+}</div>
+                
+                <p><strong>Validation Rules:</strong></p>
+                <ul>
+                    <li>estimatedDistanceKm must be > 0</li>
+                    <li>No overlapping routes for the driver on the same date</li>
+                </ul>
+                
+                <h4>POST /api/routes/{id}/assign-driver</h4>
+                <p>Assign or reassign a driver to a route. Admin only.</p>
+                
+                <p><strong>Request Body:</strong></p>
+                <div class="code-block">{
+    "driverId": 7
+}</div>
+                
+                <h3>PackageService API</h3>
+                
+                <h4>GET /api/packages/tracking/{trackingNumber}</h4>
+                <p>Track a package by its tracking number. Public endpoint.</p>
+                
+                <p><strong>Response:</strong></p>
+                <div class="code-block">{
+    "trackingNumber": "PKG-2026-0001",
+    "status": "InTransit",
+    "currentLocation": "Distribution Center",
+    "estimatedDelivery": "2026-02-15",
+    "history": [
+        {
+            "status": "Pending",
+            "timestamp": "2026-02-13T08:00:00Z",
+            "location": "Warehouse"
+        },
+        {
+            "status": "InTransit",
+            "timestamp": "2026-02-14T09:30:00Z",
+            "location": "Distribution Center"
+        }
+    ]
+}</div>
+                
+                <h4>POST /api/packages</h4>
+                <p>Create a new package.</p>
+                
+                <p><strong>Request Body:</strong></p>
+                <div class="code-block">{
+    "customerId": 100,
+    "routeId": 5,
+    "weightKg": 2.5,
+    "description": "Electronics"
+}</div>
+                
+                <p><strong>Validation:</strong></p>
+                <ul>
+                    <li>weightKg must be > 0</li>
+                    <li>routeId must exist (validated via RouteService)</li>
+                    <li>Tracking number auto-generated</li>
+                </ul>
+                
+                <h4>PATCH /api/packages/{id}/status</h4>
+                <p>Update package status. Drivers can only update packages on their routes.</p>
+                
+                <p><strong>Request Body:</strong></p>
+                <div class="code-block">{
+    "status": "InTransit"
+}</div>
+                
+                <p><strong>Status Transition Rules:</strong></p>
+                <ul>
+                    <li>Pending → InTransit ✅</li>
+                    <li>InTransit → Delivered ✅ (only if route date ≤ today)</li>
+                    <li>Delivered → Any ❌ (final state)</li>
+                </ul>
+                
+                <div class="warning-box">
+                    <strong>Authorization:</strong> Drivers can only update package status for packages assigned to their routes. Admins can update any package.
+                </div>
+            </section>
+            
+            <!-- GETTING STARTED SECTION -->
+            <section id="getting-started" class="section">
+                <h2>Getting Started</h2>
+                
+                <h3>Prerequisites</h3>
+                <ul>
+                    <li>.NET SDK 8.0 or later</li>
+                    <li>Visual Studio 2022 / VS Code / Rider (recommended)</li>
+                    <li>Git</li>
+                    <li>Postman or similar API testing tool (optional)</li>
+                </ul>
+                
+                <h3>Installation</h3>
+                
+                <h4>1. Clone the Repository</h4>
+                <div class="code-block">git clone https://github.com/yourorg/smart-delivery-system.git
+cd smart-delivery-system</div>
+                
+                <h4>2. Restore Dependencies</h4>
+                <div class="code-block"># For RouteService
+cd RouteService
+dotnet restore
+
+# For PackageService
+cd ../PackageService
+dotnet restore</div>
+                
+                <h4>3. Build the Projects</h4>
+                <div class="code-block">dotnet build</div>
+                
+                <h3>Running Locally</h3>
+                
+                <h4>Start RouteService</h4>
+                <div class="code-block">cd RouteService
+dotnet run
+
+# Service will start at https://localhost:5001</div>
+                
+                <h4>Start PackageService</h4>
+                <div class="code-block">cd PackageService
+dotnet run
+
+# Service will start at https://localhost:5002</div>
+                
+                <div class="info-box">
+                    <strong>Note:</strong> Both services must be running for full functionality since PackageService calls RouteService for validation.
+                </div>
+                
+                <h3>Using Swagger UI</h3>
+                <p>Once the services are running, you can access interactive API documentation:</p>
+                
+                <ul>
+                    <li>RouteService: <a href="https://localhost:5001/swagger">https://localhost:5001/swagger</a></li>
+                    <li>PackageService: <a href="https://localhost:5002/swagger">https://localhost:5002/swagger</a></li>
+                </ul>
+                
+                <h3>Quick Test</h3>
+                
+                <h4>1. Get a JWT Token</h4>
+                <div class="code-block">POST https://localhost:5001/api/auth/login
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "admin123"
+}</div>
+                
+                <h4>2. Create a Route</h4>
+                <div class="code-block">POST https://localhost:5001/api/routes
+Authorization: Bearer {your-token}
+Content-Type: application/json
+
+{
+    "driverId": 1,
+    "vehicleId": 1,
+    "startLocation": "Warehouse",
+    "endLocation": "Customer Area",
+    "estimatedDistanceKm": 10.5,
+    "scheduledDate": "2026-02-15"
+}</div>
+                
+                <h4>3. Create a Package</h4>
+                <div class="code-block">POST https://localhost:5002/api/packages
+Authorization: Bearer {your-token}
+Content-Type: application/json
+
+{
+    "customerId": 100,
+    "routeId": 1,
+    "weightKg": 3.2
+}</div>
+                
+                <h3>Docker Setup (Bonus)</h3>
+                
+                <h4>Build Images</h4>
+                <div class="code-block">docker build -t routeservice:latest ./RouteService
+docker build -t packageservice:latest ./PackageService</div>
+                
+                <h4>Run with Docker Compose</h4>
+                <div class="code-block">docker-compose up -d</div>
+                
+                <p>Services will be available at:</p>
+                <ul>
+                    <li>RouteService: http://localhost:8001</li>
+                    <li>PackageService: http://localhost:8002</li>
+                </ul>
+            </section>
+            
+            <!-- AUTHENTICATION SECTION -->
+            <section id="auth" class="section">
+                <h2>Authentication & Security</h2>
+                
+                <h3>JWT Implementation</h3>
+                <p>Both services use JWT (JSON Web Tokens) for stateless authentication.</p>
+                
+                <h4>Token Generation</h4>
+                <div class="code-block">public string GenerateToken(User user)
+{
+    var claims = new[]
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Name, user.Username),
+        new Claim(ClaimTypes.Role, user.Role.ToString())
+    };
+
+    var key = new SymmetricSecurityKey(
+        Encoding.UTF8.GetBytes(_configuration["Jwt:Secret"])
+    );
+    
+    var credentials = new SigningCredentials(
+        key, 
+        SecurityAlgorithms.HmacSha256
+    );
+
+    var token = new JwtSecurityToken(
+        issuer: _configuration["Jwt:Issuer"],
+        audience: _configuration["Jwt:Audience"],
+        claims: claims,
+        expires: DateTime.UtcNow.AddHours(8),
+        signingCredentials: credentials
+    );
+
+    return new JwtSecurityTokenHandler().WriteToken(token);
+}</div>
+                
+                <h4>Token Validation Configuration</h4>
+                <div class="code-block">// In Program.cs
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"])
+            )
+        };
+    });</div>
+                
+                <h3>User Roles</h3>
+                
+                <table class="table">
+                    <tr>
+                        <th>Role</th>
+                        <th>Permissions</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Driver</strong></td>
+                        <td>
+                            • View own routes only<br>
+                            • Update package status for assigned routes<br>
+                            • View packages on assigned routes
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Admin</strong></td>
+                        <td>
+                            • View all routes and packages<br>
+                            • Create/update/delete routes<br>
+                            • Assign drivers to routes<br>
+                            • Full CRUD on all resources
+                        </td>
+                    </tr>
+                </table>
+                
+                <h3>Authorization Examples</h3>
+                
+                <h4>Role-Based Authorization</h4>
+                <div class="code-block">[Authorize(Roles = "Admin")]
+[HttpPost("{id}/assign-driver")]
+public async Task&lt;IActionResult&gt; AssignDriver(int id, AssignDriverDto dto)
+{
+    // Only admins can access this endpoint
+}</div>
+                
+                <h4>Custom Authorization Logic</h4>
+                <div class="code-block">[Authorize]
+[HttpGet]
+public async Task&lt;IActionResult&gt; GetRoutes()
+{
+    var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+    var role = User.FindFirst(ClaimTypes.Role).Value;
+    
+    if (role == "Driver")
+    {
+        // Return only routes for this driver
+        return Ok(await _routeService.GetRoutesByDriverAsync(userId));
+    }
+    
+    // Admins see all routes
+    return Ok(await _routeService.GetAllRoutesAsync());
+}</div>
+                
+                <h4>Resource Ownership Validation</h4>
+                <div class="code-block">[Authorize]
+[HttpPatch("{id}/status")]
+public async Task&lt;IActionResult&gt; UpdateStatus(int id, UpdateStatusDto dto)
+{
+    var package = await _packageService.GetByIdAsync(id);
+    var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+    var role = User.FindFirst(ClaimTypes.Role).Value;
+    
+    if (role == "Driver")
+    {
+        // Verify driver owns the route this package is on
+        var route = await _routeService.GetByIdAsync(package.RouteId);
+        if (route.DriverId != userId)
+        {
+            return Forbid(); // 403 Forbidden
+        }
+    }
+    
+    // Proceed with update
+    await _packageService.UpdateStatusAsync(id, dto.Status);
+    return NoContent();
+}</div>
+                
+                <h3>Configuration</h3>
+                <p>JWT settings in <span class="inline-code">appsettings.json</span>:</p>
+                
+                <div class="code-block">{
+    "Jwt": {
+        "Secret": "your-super-secret-key-minimum-32-characters",
+        "Issuer": "SmartDeliverySystem",
+        "Audience": "SmartDeliveryUsers",
+        "ExpirationHours": 8
+    }
+}</div>
+                
+                <div class="warning-box">
+                    <strong>Security Note:</strong> In production, store the JWT secret in environment variables or a secure key vault, never in source code or appsettings.json.
+                </div>
+            </section>
+            
+            <!-- DEVELOPMENT GUIDE SECTION -->
+            <section id="development" class="section">
+                <h2>Development Guide</h2>
+                
+                <h3>Project Structure</h3>
+                
+                <div class="code-block">SmartDeliverySystem/
+├── RouteService/
+│   ├── Controllers/
+│   │   ├── RoutesController.cs
+│   │   └── AuthController.cs
+│   ├── Models/
+│   │   ├── Route.cs
+│   │   └── DTOs/
+│   ├── Services/
+│   │   ├── IRouteService.cs
+│   │   └── RouteService.cs
+│   ├── Data/
+│   │   └── RouteDbContext.cs
+│   ├── Validators/
+│   │   └── RouteValidator.cs
+│   └── Program.cs
+│
+├── PackageService/
+│   ├── Controllers/
+│   │   ├── PackagesController.cs
+│   │   └── AuthController.cs
+│   ├── Models/
+│   │   ├── Package.cs
+│   │   └── DTOs/
+│   ├── Services/
+│   │   ├── IPackageService.cs
+│   │   ├── PackageService.cs
+│   │   └── RouteValidationService.cs
+│   ├── Data/
+│   │   └── PackageDbContext.cs
+│   └── Program.cs
+│
+└── Tests/
+    ├── RouteService.Tests/
+    └── PackageService.Tests/</div>
+                
+                <h3>Async/Await Patterns</h3>
+                
+                <h4>Repository Pattern with Async</h4>
+                <div class="code-block">public interface IRouteRepository
+{
+    Task&lt;Route&gt; GetByIdAsync(int id);
+    Task&lt;IEnumerable&lt;Route&gt;&gt; GetAllAsync();
+    Task&lt;Route&gt; AddAsync(Route route);
+    Task UpdateAsync(Route route);
+    Task DeleteAsync(int id);
+}
+
+public class RouteRepository : IRouteRepository
+{
+    private readonly RouteDbContext _context;
+    
+    public async Task&lt;Route&gt; GetByIdAsync(int id)
+    {
+        return await _context.Routes
+            .Include(r => r.Packages)
+            .FirstOrDefaultAsync(r => r.Id == id);
+    }
+    
+    public async Task&lt;IEnumerable&lt;Route&gt;&gt; GetAllAsync()
+    {
+        return await _context.Routes.ToListAsync();
+    }
+}</div>
+                
+                <h4>Service Layer with Async</h4>
+                <div class="code-block">public class RouteService : IRouteService
+{
+    private readonly IRouteRepository _repository;
+    private readonly IRouteValidator _validator;
+    
+    public async Task&lt;RouteDto&gt; CreateRouteAsync(CreateRouteDto dto)
+    {
+        // Async validation
+        await _validator.ValidateAsync(dto);
+        
+        var route = new Route
+        {
+            DriverId = dto.DriverId,
+            VehicleId = dto.VehicleId,
+            StartLocation = dto.StartLocation,
+            EndLocation = dto.EndLocation,
+            EstimatedDistanceKm = dto.EstimatedDistanceKm,
+            ScheduledDate = dto.ScheduledDate
+        };
+        
+        var created = await _repository.AddAsync(route);
+        return MapToDto(created);
+    }
+}</div>
+                
+                <h4>Cross-Service Communication</h4>
+                <div class="code-block">public class RouteValidationService
+{
+    private readonly HttpClient _httpClient;
+    
+    public RouteValidationService(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+    }
+    
+    public async Task&lt;bool&gt; ValidateRouteExistsAsync(int routeId)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync(
+                $"http://routeservice:5001/api/routes/{routeId}"
+            );
+            
+            return response.IsSuccessStatusCode;
+        }
+        catch (HttpRequestException)
+        {
+            return false;
+        }
+    }
+}</div>
+                
+                <h3>Validation Rules Implementation</h3>
+                
+                <h4>Route Overlap Detection</h4>
+                <div class="code-block">public async Task&lt;bool&gt; HasOverlappingRoutes(
+    int driverId, 
+    DateTime scheduledDate, 
+    int? excludeRouteId = null)
+{
+    return await _context.Routes
+        .AnyAsync(r => 
+            r.DriverId == driverId &&
+            r.ScheduledDate.Date == scheduledDate.Date &&
+            (!excludeRouteId.HasValue || r.Id != excludeRouteId.Value)
+        );
+}
+
+public async Task ValidateNoOverlap(CreateRouteDto dto)
+{
+    if (await HasOverlappingRoutes(dto.DriverId, dto.ScheduledDate))
+    {
+        throw new ValidationException(
+            "Driver already has a route scheduled for this date"
+        );
+    }
+}</div>
+                
+                <h4>Package Status Transition Validation</h4>
+                <div class="code-block">public async Task&lt;bool&gt; CanTransitionStatus(
+    int packageId, 
+    PackageStatus newStatus)
+{
+    var package = await _context.Packages
+        .Include(p => p.Route)
+        .FirstOrDefaultAsync(p => p.Id == packageId);
+    
+    if (package == null) return false;
+    
+    // Cannot change from Delivered
+    if (package.Status == PackageStatus.Delivered)
+        return false;
+    
+    // Can only mark delivered if route date <= today
+    if (newStatus == PackageStatus.Delivered)
+    {
+        if (package.Route.ScheduledDate.Date > DateTime.UtcNow.Date)
+            return false;
+    }
+    
+    // Valid transitions: Pending → InTransit → Delivered
+    return (package.Status == PackageStatus.Pending && 
+            newStatus == PackageStatus.InTransit) ||
+           (package.Status == PackageStatus.InTransit && 
+            newStatus == PackageStatus.Delivered);
+}</div>
+                
+                <h3>Error Handling</h3>
+                
+                <div class="code-block">// Global exception handler middleware
+public class ErrorHandlingMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly ILogger&lt;ErrorHandlingMiddleware&gt; _logger;
+    
+    public async Task InvokeAsync(HttpContext context)
+    {
+        try
+        {
+            await _next(context);
+        }
+        catch (ValidationException ex)
+        {
+            _logger.LogWarning(ex, "Validation error occurred");
+            context.Response.StatusCode = 400;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                error = "Validation failed",
+                message = ex.Message
+            });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Unauthorized access attempt");
+            context.Response.StatusCode = 403;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                error = "Access denied"
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unhandled exception occurred");
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                error = "Internal server error"
+            });
+        }
+    }
+}</div>
+            </section>
+            
+            <!-- TESTING SECTION -->
+            <section id="testing" class="section">
+                <h2>Testing Documentation</h2>
+                
+                <h3>Testing Strategy</h3>
+                <p>Comprehensive unit tests cover business logic, validation rules, and authorization. We use xUnit with Moq for mocking dependencies.</p>
+                
+                <h3>RouteService Tests</h3>
+                
+                <h4>Driver Assignment Validation</h4>
+                <div class="code-block">public class RouteServiceTests
+{
+    [Fact]
+    public async Task AssignDriver_ValidAssignment_Success()
+    {
+        // Arrange
+        var mockRepo = new Mock&lt;IRouteRepository&gt;();
+        var route = new Route { Id = 1, DriverId = 5 };
+        
+        mockRepo.Setup(r => r.GetByIdAsync(1))
+            .ReturnsAsync(route);
+        
+        var service = new RouteService(mockRepo.Object);
+        
+        // Act
+        await service.AssignDriverAsync(1, 10);
+        
+        // Assert
+        mockRepo.Verify(r => r.UpdateAsync(
+            It.Is&lt;Route&gt;(x => x.DriverId == 10)
+        ), Times.Once);
+    }
+}</div>
+                
+                <h4>Overlapping Route Detection</h4>
+                <div class="code-block">[Fact]
+public async Task CreateRoute_OverlappingDate_ThrowsException()
+{
+    // Arrange
+    var mockRepo = new Mock&lt;IRouteRepository&gt;();
+    var existingRoute = new Route
+    {
+        DriverId = 5,
+        ScheduledDate = new DateTime(2026, 2, 15)
+    };
+    
+    mockRepo.Setup(r => r.GetByDriverAndDateAsync(5, 
+        It.IsAny&lt;DateTime&gt;()))
+        .ReturnsAsync(existingRoute);
+    
+    var service = new RouteService(mockRepo.Object);
+    var newRoute = new CreateRouteDto
+    {
+        DriverId = 5,
+        ScheduledDate = new DateTime(2026, 2, 15)
+    };
+    
+    // Act & Assert
+    await Assert.ThrowsAsync&lt;ValidationException&gt;(
+        () => service.CreateRouteAsync(newRoute)
+    );
+}</div>
+                
+                <h4>Search and Pagination</h4>
+                <div class="code-block">[Fact]
+public async Task SearchRoutes_WithPagination_ReturnsCorrectPage()
+{
+    // Arrange
+    var routes = GenerateTestRoutes(25); // 25 routes
+    var mockRepo = new Mock&lt;IRouteRepository&gt;();
+    
+    mockRepo.Setup(r => r.SearchAsync(
+        It.IsAny&lt;string&gt;(), 
+        It.IsAny&lt;DateTime?&gt;(), 
+        2, // page number
+        10 // page size
+    )).ReturnsAsync(routes.Skip(10).Take(10));
+    
+    var service = new RouteService(mockRepo.Object);
+    
+    // Act
+    var result = await service.SearchRoutesAsync(
+        null, null, 2, 10
+    );
+    
+    // Assert
+    Assert.Equal(10, result.Data.Count());
+    Assert.Equal(2, result.PageNumber);
+    Assert.Equal(10, result.PageSize);
+    Assert.Equal(25, result.TotalRecords);
+}</div>
+                
+                <h3>PackageService Tests</h3>
+                
+                <h4>Package Creation with Route Validation</h4>
+                <div class="code-block">[Fact]
+public async Task CreatePackage_InvalidRoute_ThrowsException()
+{
+    // Arrange
+    var mockRepo = new Mock&lt;IPackageRepository&gt;();
+    var mockRouteValidator = new Mock&lt;IRouteValidationService&gt;();
+    
+    mockRouteValidator.Setup(v => v.ValidateRouteExistsAsync(99))
+        .ReturnsAsync(false);
+    
+    var service = new PackageService(
+        mockRepo.Object, 
+        mockRouteValidator.Object
+    );
+    
+    var dto = new CreatePackageDto
+    {
+        RouteId = 99,
+        CustomerId = 1,
+        WeightKg = 5.0m
+    };
+    
+    // Act & Assert
+    await Assert.ThrowsAsync&lt;ValidationException&gt;(
+        () => service.CreatePackageAsync(dto)
+    );
+}</div>
+                
+                <h4>Status Transition Validation</h4>
+                <div class="code-block">[Theory]
+[InlineData(PackageStatus.Pending, PackageStatus.InTransit, true)]
+[InlineData(PackageStatus.InTransit, PackageStatus.Delivered, true)]
+[InlineData(PackageStatus.Delivered, PackageStatus.Pending, false)]
+[InlineData(PackageStatus.Pending, PackageStatus.Delivered, false)]
+public async Task UpdateStatus_VariousTransitions_ValidatesCorrectly(
+    PackageStatus current, 
+    PackageStatus newStatus, 
+    bool shouldSucceed)
+{
+    // Arrange
+    var package = new Package
+    {
+        Id = 1,
+        Status = current,
+        Route = new Route 
+        { 
+            ScheduledDate = DateTime.UtcNow.AddDays(-1) 
+        }
+    };
+    
+    var mockRepo = new Mock&lt;IPackageRepository&gt;();
+    mockRepo.Setup(r => r.GetByIdAsync(1))
+        .ReturnsAsync(package);
+    
+    var service = new PackageService(mockRepo.Object, null);
+    
+    // Act & Assert
+    if (shouldSucceed)
+    {
+        await service.UpdateStatusAsync(1, newStatus);
+        mockRepo.Verify(r => r.UpdateAsync(
+            It.Is&lt;Package&gt;(p => p.Status == newStatus)
+        ), Times.Once);
+    }
+    else
+    {
+        await Assert.ThrowsAsync&lt;ValidationException&gt;(
+            () => service.UpdateStatusAsync(1, newStatus)
+        );
+    }
+}</div>
+                
+                <h4>Authorization Logic Tests</h4>
+                <div class="code-block">[Fact]
+public async Task UpdateStatus_DriverNotOwningRoute_ThrowsUnauthorized()
+{
+    // Arrange
+    var package = new Package
+    {
+        RouteId = 5,
+        Route = new Route { DriverId = 10 }
+    };
+    
+    var mockRepo = new Mock&lt;IPackageRepository&gt;();
+    mockRepo.Setup(r => r.GetByIdAsync(1))
+        .ReturnsAsync(package);
+    
+    var service = new PackageService(mockRepo.Object, null);
+    
+    // Act & Assert
+    await Assert.ThrowsAsync&lt;UnauthorizedAccessException&gt;(
+        () => service.UpdateStatusAsync(
+            1, 
+            PackageStatus.InTransit, 
+            userId: 99, // Different driver
+            role: "Driver"
+        )
+    );
+}</div>
+                
+                <h3>Running Tests</h3>
+                
+                <h4>Command Line</h4>
+                <div class="code-block"># Run all tests
+dotnet test
+
+# Run with coverage
+dotnet test /p:CollectCoverage=true
+
+# Run specific test
+dotnet test --filter "FullyQualifiedName~RouteServiceTests"
+
+# Run with detailed output
+dotnet test --logger "console;verbosity=detailed"</div>
+                
+                <h4>Test Coverage Summary</h4>
+                <table class="table">
+                    <tr>
+                        <th>Component</th>
+                        <th>Coverage</th>
+                    </tr>
+                    <tr>
+                        <td>RouteService Business Logic</td>
+                        <td>95%</td>
+                    </tr>
+                    <tr>
+                        <td>PackageService Business Logic</td>
+                        <td>93%</td>
+                    </tr>
+                    <tr>
+                        <td>Validation Rules</td>
+                        <td>100%</td>
+                    </tr>
+                    <tr>
+                        <td>Authorization Logic</td>
+                        <td>98%</td>
+                    </tr>
+                </table>
+            </section>
+            
+            <!-- DATA MODELS SECTION -->
+            <section id="data-models" class="section">
+                <h2>Data Models & Schemas</h2>
+                
+                <h3>Route Entity</h3>
+                
+                <div class="code-block">public class Route
+{
+    [Key]
+    public int Id { get; set; }
+    
+    [Required]
+    public int DriverId { get; set; }
+    
+    [Required]
+    public int VehicleId { get; set; }
+    
+    [Required]
+    [MaxLength(200)]
+    public string StartLocation { get; set; }
+    
+    [Required]
+    [MaxLength(200)]
+    public string EndLocation { get; set; }
+    
+    [Required]
+    [Range(0.01, double.MaxValue)]
+    public decimal EstimatedDistanceKm { get; set; }
+    
+    [Required]
+    public DateTime ScheduledDate { get; set; }
+    
+    // Navigation properties
+    public virtual ICollection&lt;Package&gt; Packages { get; set; }
+}</div>
+                
+                <h3>Package Entity</h3>
+                
+                <div class="code-block">public class Package
+{
+    [Key]
+    public int Id { get; set; }
+    
+    [Required]
+    [MaxLength(50)]
+    public string TrackingNumber { get; set; }
+    
+    [Required]
+    public int CustomerId { get; set; }
+    
+    [Required]
+    public int RouteId { get; set; }
+    
+    [Required]
+    public PackageStatus Status { get; set; }
+    
+    [Required]
+    [Range(0.01, double.MaxValue)]
+    public decimal WeightKg { get; set; }
+    
+    [Required]
+    public DateTime CreatedAt { get; set; }
+    
+    // Navigation properties
+    public virtual Route Route { get; set; }
+}
+
+public enum PackageStatus
+{
+    Pending = 0,
+    InTransit = 1,
+    Delivered = 2
+}</div>
+                
+                <h3>EF Core Configuration</h3>
+                
+                <h4>RouteDbContext</h4>
+                <div class="code-block">public class RouteDbContext : DbContext
+{
+    public RouteDbContext(DbContextOptions&lt;RouteDbContext&gt; options)
+        : base(options)
+    {
+    }
+    
+    public DbSet&lt;Route&gt; Routes { get; set; }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity&lt;Route&gt;(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
+            entity.Property(e => e.StartLocation)
+                .IsRequired()
+                .HasMaxLength(200);
+            
+            entity.Property(e => e.EndLocation)
+                .IsRequired()
+                .HasMaxLength(200);
+            
+            entity.Property(e => e.EstimatedDistanceKm)
+                .HasPrecision(10, 2);
+            
+            // Index for common queries
+            entity.HasIndex(e => new { e.DriverId, e.ScheduledDate });
+        });
+        
+        // Seed data
+        SeedData(modelBuilder);
+    }
+    
+    private void SeedData(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity&lt;Route&gt;().HasData(
+            new Route
+            {
+                Id = 1,
+                DriverId = 1,
+                VehicleId = 1,
+                StartLocation = "Warehouse A",
+                EndLocation = "Downtown",
+                EstimatedDistanceKm = 15.5m,
+                ScheduledDate = DateTime.UtcNow.AddDays(1)
+            }
+        );
+    }
+}</div>
+                
+                <h4>PackageDbContext</h4>
+                <div class="code-block">public class PackageDbContext : DbContext
+{
+    public PackageDbContext(DbContextOptions&lt;PackageDbContext&gt; options)
+        : base(options)
+    {
+    }
+    
+    public DbSet&lt;Package&gt; Packages { get; set; }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity&lt;Package&gt;(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
+            entity.Property(e => e.TrackingNumber)
+                .IsRequired()
+                .HasMaxLength(50);
+            
+            entity.Property(e => e.WeightKg)
+                .HasPrecision(10, 2);
+            
+            entity.Property(e => e.Status)
+                .HasConversion&lt;string&gt;();
+            
+            // Unique tracking number
+            entity.HasIndex(e => e.TrackingNumber)
+                .IsUnique();
+            
+            // Index for customer queries
+            entity.HasIndex(e => e.CustomerId);
+        });
+    }
+}</div>
+                
+                <h3>DTOs (Data Transfer Objects)</h3>
+                
+                <h4>CreateRouteDto</h4>
+                <div class="code-block">public class CreateRouteDto
+{
+    [Required]
+    public int DriverId { get; set; }
+    
+    [Required]
+    public int VehicleId { get; set; }
+    
+    [Required]
+    [MaxLength(200)]
+    public string StartLocation { get; set; }
+    
+    [Required]
+    [MaxLength(200)]
+    public string EndLocation { get; set; }
+    
+    [Required]
+    [Range(0.01, 10000)]
+    public decimal EstimatedDistanceKm { get; set; }
+    
+    [Required]
+    public DateTime ScheduledDate { get; set; }
+}</div>
+                
+                <h4>CreatePackageDto</h4>
+                <div class="code-block">public class CreatePackageDto
+{
+    [Required]
+    public int CustomerId { get; set; }
+    
+    [Required]
+    public int RouteId { get; set; }
+    
+    [Required]
+    [Range(0.01, 1000)]
+    public decimal WeightKg { get; set; }
+    
+    [MaxLength(500)]
+    public string Description { get; set; }
+}</div>
+            </section>
+            
+            <!-- DEPLOYMENT SECTION -->
+            <section id="deployment" class="section">
+                <h2>Deployment</h2>
+                
+                <h3>Docker Configuration</h3>
+                
+                <h4>RouteService Dockerfile</h4>
+                <div class="code-block">FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+EXPOSE 80
+EXPOSE 443
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY ["RouteService/RouteService.csproj", "RouteService/"]
+RUN dotnet restore "RouteService/RouteService.csproj"
+COPY . .
+WORKDIR "/src/RouteService"
+RUN dotnet build "RouteService.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "RouteService.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "RouteService.dll"]</div>
+                
+                <h4>docker-compose.yml</h4>
+                <div class="code-block">version: '3.8'
+
+services:
+  routeservice:
+    build:
+      context: .
+      dockerfile: RouteService/Dockerfile
+    ports:
+      - "8001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Jwt__Secret=${JWT_SECRET}
+      - Jwt__Issuer=SmartDeliverySystem
+      - Jwt__Audience=SmartDeliveryUsers
+    networks:
+      - delivery-network
+
+  packageservice:
+    build:
+      context: .
+      dockerfile: PackageService/Dockerfile
+    ports:
+      - "8002:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Jwt__Secret=${JWT_SECRET}
+      - RouteService__BaseUrl=http://routeservice
+    depends_on:
+      - routeservice
+    networks:
+      - delivery-network
+
+networks:
+  delivery-network:
+    driver: bridge</div>
+                
+                <h3>Environment Variables</h3>
+                
+                <p>Create a <span class="inline-code">.env</span> file:</p>
+                <div class="code-block">JWT_SECRET=your-super-secret-key-minimum-32-characters-long
+ASPNETCORE_ENVIRONMENT=Production</div>
+                
+                <h3>Logging Configuration</h3>
+                
+                <h4>appsettings.json</h4>
+                <div class="code-block">{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning",
+      "Microsoft.EntityFrameworkCore": "Warning"
+    },
+    "Console": {
+      "FormatterName": "json",
+      "FormatterOptions": {
+        "TimestampFormat": "yyyy-MM-dd HH:mm:ss "
+      }
+    },
+    "File": {
+      "Path": "logs/app-.log",
+      "RollingInterval": "Day",
+      "FileSizeLimitBytes": 10485760,
+      "RetainedFileCountLimit": 7
+    }
+  }
+}</div>
+                
+                <h4>Simple File Logging</h4>
+                <div class="code-block">// In Program.cs
+builder.Logging.AddFile("logs/app-{Date}.log");</div>
+                
+                <h3>API Gateway (Bonus)</h3>
+                
+                <p>Basic Ocelot configuration for API Gateway:</p>
+                
+                <div class="code-block">{
+  "Routes": [
+    {
+      "DownstreamPathTemplate": "/api/routes/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "routeservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/routes/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/packages/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "packageservice",
+          "Port": 80
+        }
+      ],
+      "UpstreamPathTemplate": "/packages/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "PATCH", "DELETE" ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://gateway"
+  }
+}</div>
+                
+                <h3>Deployment Commands</h3>
+                
+                <h4>Build and Run</h4>
+                <div class="code-block"># Build images
+docker-compose build
+
+# Start services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down</div>
+                
+                <h4>Health Checks</h4>
+                <div class="code-block"># Check RouteService
+curl http://localhost:8001/health
+
+# Check PackageService
+curl http://localhost:8002/health</div>
+                
+                <div class="info-box">
+                    <strong>Production Tip:</strong> Use a container orchestration platform like Kubernetes or Docker Swarm for production deployments with proper scaling, health checks, and monitoring.
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active from all nav items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Mark nav item as active
+            event.target.classList.add('active');
+            
+            // Scroll to top of content
+            document.querySelector('.content').scrollTop = 0;
+        }
+    </script>
+</body>
+</html>

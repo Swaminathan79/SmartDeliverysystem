@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="docker-compose.yml" />
+  </Folder>
+  <Project Path="ApiGateway/ApiGateway.csproj">
+    <BuildDependency Project="AuthService/AuthService.csproj" />
+    <BuildDependency Project="PackageService/PackageService.csproj" />
+    <BuildDependency Project="RouteService/RouteService.csproj" />
+  </Project>
+  <Project Path="AuthService/AuthService.csproj" />
+  <Project Path="PackageService/PackageService.csproj" />
+  <Project Path="RouteService/RouteService.csproj" />
+</Solution>

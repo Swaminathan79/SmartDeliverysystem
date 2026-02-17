@@ -1,0 +1,6 @@
+@SmartDeliverySystemArch_HostAddress = http://localhost:5062
+
+GET {{SmartDeliverySystemArch_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
