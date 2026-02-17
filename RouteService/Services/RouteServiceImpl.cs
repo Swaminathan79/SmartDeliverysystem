@@ -84,12 +84,6 @@ public class RouteServiceImpl : IRouteService
             dto.ScheduledDate
         );
         
-        // Validate scheduled date is not in the past
-        if (dto.ScheduledDate.Date < DateTime.UtcNow.Date)
-        {
-            throw new ValidationException("Scheduled date cannot be in the past");
-        }
-        
         // Check for overlapping routes
         var hasOverlap = await _repository.HasOverlappingRoutesAsync(dto.DriverId, dto.ScheduledDate);
         

@@ -1,4 +1,4 @@
-using System.Text;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -6,8 +6,10 @@ using Microsoft.OpenApi.Models;
 using RouteService.Data;
 using RouteService.Repositories;
 using RouteService.Services;
+using RouteService.Validator;
 using Serilog;
 using Serilog.Events;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,6 +102,8 @@ builder.Services.AddAuthorization();
 // Register application services
 builder.Services.AddScoped<IRouteRepository, RouteRepository>();
 builder.Services.AddScoped<IRouteService, RouteServiceImpl>();
+
+builder.Services.AddValidatorsFromAssemblyContaining<RouteDtoValidator>();
 
 var app = builder.Build();
 

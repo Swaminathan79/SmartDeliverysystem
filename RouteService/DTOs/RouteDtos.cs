@@ -56,7 +56,9 @@ public class UpdateRouteDto
 public class AssignDriverDto
 {
     [Required]
+    public int RouteId { get; set; }
     public int DriverId { get; set; }
+
 }
 
 public class PaginatedResult<T>
