@@ -1,0 +1,68 @@
+API Gateway Service Collection - Central entry point
+Auth Service Collection - JWT Authentication with roles (Driver, Admin, Manager)
+Route Service Collection - Delivery routes & driver assignments
+Package Service Collection - Package management & tracking
+Creating Smart-Delivery-API-Gateway.postman_collection.json
+
+
+Collections Created (67 Total Requests)
+1. 
+Smart Delivery - Auth Service
+ (14 requests)
+Authentication: Login, Register, Refresh Token, Logout
+User Management: Get/Update/Delete User, Change Password
+Drivers: Get All Drivers, Get Driver by ID, Update Driver Status
+Roles: Driver, Admin, Manager support
+2. 
+Smart Delivery - Route Service
+ (18 requests)
+Routes: CRUD operations, optimize routes, get by status
+Driver Assignments: Assign/unassign drivers, get assignments
+Route Stops: Add/update/complete stops, reorder stops
+3. 
+Smart Delivery - Package Service
+ (16 requests)
+Packages: CRUD operations, bulk create, search
+Tracking: Public tracking endpoint (no auth), tracking history
+Delivery: Update status, delivery attempts, complete delivery
+Reports: Delivery reports, statistics
+4. 
+Smart Delivery - API Gateway
+ (19 requests)
+Central routing to all microservices
+Smart auth handling - public endpoints bypass JWT check
+Admin endpoints: Metrics, logs, rate limits
+🔐 JWT Authentication Configured
+All collections use Bearer Token authentication with {{jwt_token}} variable:
+
+Login requests auto-save JWT tokens to environment
+Pre-request scripts validate token presence
+Public endpoints (health, login, register, tracking) skip auth
+🌍 Dev Environment Updated (37 Variables)
+Base URLs:
+
+gateway_url: 
+http://localhost:5000
+auth_url: 
+http://localhost:5001
+route_url: 
+http://localhost:5002
+package_url: 
+http://localhost:5003
+Auth Variables (marked as secrets):
+
+jwt_token, refresh_token
+user_email, user_password, user_id, user_role
+Entity IDs & Sample Data:
+
+Driver, route, package, tracking IDs
+Sender/recipient information
+Timestamps and dates
+🚀 Next Steps
+Start your microservices on ports 5000-5003
+Test authentication: Run "Login via Gateway" or "Login" in Auth Service
+Verify JWT flow: Token will auto-save and be used in subsequent requests
+Run collections: Use Collection Runner to test entire workflows
+Set up monitors: Automate testing on a schedule
+Everything is ready to go! Would you like me to help you test the authentication flow or create any additional requests?
+
