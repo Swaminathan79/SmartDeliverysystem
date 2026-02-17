@@ -10,11 +10,13 @@ namespace AuthService.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly JwtService _jwtService;
     private readonly ILogger<AuthController> _logger;
     
-    public AuthController(IAuthService authService, ILogger<AuthController> logger)
+    public AuthController(IAuthService authService, JwtService jwtService, ILogger<AuthController> logger)
     {
         _authService = authService;
+        _jwtService = jwtService;
         _logger = logger;
     }
     
@@ -28,7 +30,7 @@ public class AuthController : ControllerBase
             "Registration request received for username: {Username}",
             dto.Username
         );
-        
+
         var user = await _authService.RegisterAsync(dto);
         
         return CreatedAtAction(
@@ -114,4 +116,15 @@ public class AuthController : ControllerBase
         
         return NoContent();
     }
+
+    [HttpPost("refresh")]
+    public async Task<IActionResult> Refresh(RefreshTokenRequest request)
+    {
+        var user = await _authService.ValidateRefreshToken(request.RefreshToken);
+
+        var newToken = _jwtService.GenerateToken(user);
+
+        return Ok(new { token = newToken });
+    }
+
 }

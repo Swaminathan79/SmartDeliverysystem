@@ -1,6 +1,11 @@
 using AuthService.Data;
+using AuthService.DTOs;
 using AuthService.Middleware;
 using AuthService.Services;
+using AuthService.Validation;
+using AuthService.Validators;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -138,6 +143,15 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
+
+//Register FluentValidation
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<LoginDto>();
+builder.Services.AddValidatorsFromAssemblyContaining<UpdateUserDto>();
+builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
+
 
 builder.Services.AddAuthorization();
 

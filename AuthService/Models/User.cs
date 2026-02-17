@@ -20,7 +20,7 @@ public class User
     [Required]
     public UserRole Role { get; set; }
     
-    public int? DriverId { get; set; }
+   // public int? DriverId { get; set; }
     
     public DateTime CreatedAt { get; set; }
     
@@ -29,6 +29,12 @@ public class User
     public int FailedLoginAttempts { get; set; }
     
     public DateTime? LockoutEnd { get; set; }
+
+    public string RefreshToken { get; set; } = string.Empty; // ADD THIS
+
+    public DateTime? RefreshTokenExpiryTime { get; set; }
+
+
 }
 
 public enum UserRole

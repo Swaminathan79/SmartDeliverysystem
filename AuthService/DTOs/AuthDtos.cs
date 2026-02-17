@@ -20,7 +20,7 @@ public class RegisterDto
     [Required]
     public UserRole Role { get; set; }
     
-    public int? DriverId { get; set; }
+    //public int? DriverId { get; set; }
 }
 
 public class LoginDto
@@ -35,6 +35,8 @@ public class LoginDto
 public class LoginResponseDto
 {
     public string Token { get; set; } = string.Empty;
+    public string RefreshToken { get; set; } = string.Empty; // ADD THIS
+
     public int UserId { get; set; }
     public string Username { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
@@ -52,6 +54,7 @@ public class UserDto
     public int? DriverId { get; set; }
     public bool IsActive { get; set; }
     public DateTime CreatedAt { get; set; }
+
 }
 
 public class UpdateUserDto
@@ -62,4 +65,9 @@ public class UpdateUserDto
     public UserRole? Role { get; set; }
     
     public bool? IsActive { get; set; }
+}
+
+public class RefreshTokenRequest
+{
+    public string RefreshToken { get; set; } = string.Empty;
 }
