@@ -19,7 +19,24 @@ public class AuthController : ControllerBase
         _jwtService = jwtService;
         _logger = logger;
     }
-    
+
+    [HttpGet("ping")]
+    public IActionResult Ping() => Ok("Alive");
+
+
+    [AllowAnonymous]
+    [HttpPost("registerEmpty")]
+    public IActionResult RegisterEmpty()
+    {
+        return Ok("Reached Controller");
+    }
+
+    [AllowAnonymous]
+    [HttpPost("registerObject")]
+    public IActionResult RegisterObject([FromBody] object body)
+    {
+        return Ok(body);
+    }
     /// <summary>
     /// Register a new user
     /// </summary>

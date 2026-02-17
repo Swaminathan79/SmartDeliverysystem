@@ -1,0 +1,18 @@
+{
+  "workspace": {
+    "id": "c8e5cbd1-3e52-4e92-8676-fdd6bafbd054"
+  },
+  "entities": {
+    "environments": [],
+    "flows": [],
+    "globals": [],
+    "mocks": [],
+    "specs": [],
+    "collections": [
+      "..\\API-Gateway-Service.postman_collection.json",
+      "..\\Auth-Service.postman_collection.json",
+      "..\\Package-Service.postman_collection.json",
+      "..\\Route-Service.postman_collection.json"
+    ]
+  }
+}
