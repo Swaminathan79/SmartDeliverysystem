@@ -1,0 +1,17 @@
+{
+  "workspace": {
+    "id": "830826af-ac3d-4885-be59-254c01f73c48"
+  },
+  "entities": {
+    "environments": [],
+    "flows": [],
+    "globals": [],
+    "mocks": [],
+    "specs": [
+      "..\\ApiGateway\\obj\\Debug\\net10.0\\EndpointInfo\\ApiGateway.json",
+      "..\\AuthService\\obj\\Debug\\net8.0\\EndpointInfo\\AuthService.json",
+      "..\\RouteService\\obj\\Debug\\net8.0\\EndpointInfo\\RouteService.json"
+    ],
+    "collections": []
+  }
+}

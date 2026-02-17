@@ -1,0 +1,574 @@
+{
+  "info": {
+    "name": "Smart Delivery - Auth Service",
+    "description": "# Auth Service\n\nManages Authentication & Authorization for the Smart Delivery System.\n\n## Features\n- User Registration & Login\n- JWT Token Generation & Validation\n- Role-Based Access Control (RBAC)\n- User Management (Admin)\n\n## User Roles\n| Role | Description | Permissions |\n|------|-------------|-------------|\n| **Admin** | System Administrator | Full access to all endpoints |\n| **Manager** | Operations Manager | Manage routes, packages, view users |\n| **Driver** | Delivery Driver | View assigned routes, update delivery status |\n\n## JWT Token\n- Expires in 24 hours\n- Include in Authorization header: `Bearer <token>`\n\n## Base URL\n- Direct: `http://localhost:3001`\n- Via Gateway: `http://localhost:3000/api/auth`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "authUrl",
+      "value": "{{authServiceUrl}}",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{authUrl}}/health",
+            "description": "Check Auth Service health status."
+          },
+          "response": [
+            {
+              "name": "Healthy",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{authUrl}}/health"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"service\": \"auth-service\",\n  \"status\": \"healthy\",\n  \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register - Driver",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has token', function() {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.have.property('token');",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('driverToken', response.data.token);",
+                  "    pm.environment.set('driverId', response.data.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"driver_john\",\n  \"email\": \"driver.john@smartdelivery.com\",\n  \"password\": \"driver123\",\n  \"role\": \"Driver\"\n}"
+            },
+            "url": "{{authUrl}}/api/auth/register",
+            "description": "Register a new Driver user."
+          },
+          "response": [
+            {
+              "name": "Driver Registered",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"driver_john\",\n  \"email\": \"driver.john@smartdelivery.com\",\n  \"password\": \"driver123\",\n  \"role\": \"Driver\"\n}"
+                },
+                "url": "{{authUrl}}/api/auth/register"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"User registered successfully\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"550e8400-e29b-41d4-a716-446655440001\",\n      \"username\": \"driver_john\",\n      \"email\": \"driver.john@smartdelivery.com\",\n      \"role\": \"Driver\",\n      \"createdAt\": \"2024-01-15T10:30:00.000Z\"\n    },\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Register - Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('adminToken', response.data.token);",
+                  "    pm.environment.set('adminId', response.data.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin_user\",\n  \"email\": \"admin@smartdelivery.com\",\n  \"password\": \"admin123\",\n  \"role\": \"Admin\"\n}"
+            },
+            "url": "{{authUrl}}/api/auth/register",
+            "description": "Register a new Admin user."
+          },
+          "response": []
+        },
+        {
+          "name": "Register - Manager",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 201', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('managerToken', response.data.token);",
+                  "    pm.environment.set('managerId', response.data.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"manager_sarah\",\n  \"email\": \"manager.sarah@smartdelivery.com\",\n  \"password\": \"manager123\",\n  \"role\": \"Manager\"\n}"
+            },
+            "url": "{{authUrl}}/api/auth/register",
+            "description": "Register a new Manager user."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has user and token', function() {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.have.property('user');",
+                  "    pm.expect(response.data).to.have.property('token');",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('token', response.data.token);",
+                  "    pm.environment.set('userId', response.data.user.id);",
+                  "    pm.environment.set('userRole', response.data.user.role);",
+                  "    console.log('Logged in as:', response.data.user.role);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@smartdelivery.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": "{{authUrl}}/api/auth/login",
+            "description": "Login with email and password to receive JWT token."
+          },
+          "response": [
+            {
+              "name": "Successful Login",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@smartdelivery.com\",\n  \"password\": \"admin123\"\n}"
+                },
+                "url": "{{authUrl}}/api/auth/login"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"username\": \"admin_user\",\n      \"email\": \"admin@smartdelivery.com\",\n      \"role\": \"Admin\",\n      \"createdAt\": \"2024-01-15T10:30:00.000Z\"\n    },\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NTQ0MDAwMCIsInVzZXJuYW1lIjoiYWRtaW5fdXNlciIsImVtYWlsIjoiYWRtaW5Ac21hcnRkZWxpdmVyeS5jb20iLCJyb2xlIjoiQWRtaW4iLCJpYXQiOjE3MDUzMTQ2MDAsImV4cCI6MTcwNTQwMTAwMH0.xxxxx\"\n  }\n}"
+            },
+            {
+              "name": "Invalid Credentials",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"admin@smartdelivery.com\",\n  \"password\": \"wrongpassword\"\n}"
+                },
+                "url": "{{authUrl}}/api/auth/login"
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Invalid credentials\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Validate Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Token is valid', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.success).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{authUrl}}/api/auth/validate",
+            "description": "Validate the current JWT token and get user info."
+          },
+          "response": [
+            {
+              "name": "Valid Token",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": "{{authUrl}}/api/auth/validate"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Token is valid\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"username\": \"admin_user\",\n      \"email\": \"admin@smartdelivery.com\",\n      \"role\": \"Admin\"\n    }\n  }\n}"
+            },
+            {
+              "name": "Expired Token",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer expired-token-here"
+                  }
+                ],
+                "url": "{{authUrl}}/api/auth/validate"
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Token expired\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "User Profile",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Profile retrieved', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has user data', function() {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data.user).to.have.property('id');",
+                  "    pm.expect(response.data.user).to.have.property('email');",
+                  "    pm.expect(response.data.user).to.have.property('role');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{authUrl}}/api/auth/profile",
+            "description": "Get the authenticated user's profile information."
+          },
+          "response": [
+            {
+              "name": "Profile Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": "{{authUrl}}/api/auth/profile"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user\": {\n      \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"username\": \"admin_user\",\n      \"email\": \"admin@smartdelivery.com\",\n      \"role\": \"Admin\",\n      \"createdAt\": \"2024-01-15T10:30:00.000Z\",\n      \"updatedAt\": \"2024-01-15T10:30:00.000Z\"\n    }\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "User Management (Admin)",
+      "item": [
+        {
+          "name": "Get All Users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Users retrieved', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has users array', function() {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data.users).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{authUrl}}/api/auth/users",
+            "description": "Get all users in the system. **Admin only.**"
+          },
+          "response": [
+            {
+              "name": "Users List",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "url": "{{authUrl}}/api/auth/users"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"count\": 3,\n  \"data\": {\n    \"users\": [\n      {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n        \"username\": \"admin_user\",\n        \"email\": \"admin@smartdelivery.com\",\n        \"role\": \"Admin\"\n      },\n      {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440001\",\n        \"username\": \"manager_sarah\",\n        \"email\": \"manager.sarah@smartdelivery.com\",\n        \"role\": \"Manager\"\n      },\n      {\n        \"id\": \"550e8400-e29b-41d4-a716-446655440002\",\n        \"username\": \"driver_john\",\n        \"email\": \"driver.john@smartdelivery.com\",\n        \"role\": \"Driver\"\n      }\n    ]\n  }\n}"
+            },
+            {
+              "name": "Forbidden - Not Admin",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{driverToken}}"
+                  }
+                ],
+                "url": "{{authUrl}}/api/auth/users"
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Access denied. Required roles: Admin\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('User updated', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"updated_username\",\n  \"role\": \"Manager\"\n}"
+            },
+            "url": "{{authUrl}}/api/auth/users/{{userId}}",
+            "description": "Update a user's information. **Admin only.**"
+          },
+          "response": [
+            {
+              "name": "User Updated",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"updated_username\",\n  \"role\": \"Manager\"\n}"
+                },
+                "url": "{{authUrl}}/api/auth/users/{{userId}}"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"User updated successfully\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"550e8400-e29b-41d4-a716-446655440001\",\n      \"username\": \"updated_username\",\n      \"email\": \"driver.john@smartdelivery.com\",\n      \"role\": \"Manager\",\n      \"updatedAt\": \"2024-01-15T11:00:00.000Z\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('User deleted', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{authUrl}}/api/auth/users/{{userId}}",
+            "description": "Delete a user from the system. **Admin only.**"
+          },
+          "response": [
+            {
+              "name": "User Deleted",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "url": "{{authUrl}}/api/auth/users/{{userId}}"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"User deleted successfully\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

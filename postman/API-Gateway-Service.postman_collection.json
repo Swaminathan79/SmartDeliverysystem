@@ -1,0 +1,622 @@
+{
+  "info": {
+    "name": "Smart Delivery - API Gateway Service",
+    "description": "# API Gateway Service\n\nCentral entry point for the Smart Delivery System microservices.\n\n## Overview\nThe API Gateway provides a unified interface to access all microservices:\n- Auth Service (Authentication & Authorization)\n- Route Service (Delivery Routes Management)\n- Package Service (Package Tracking & Management)\n\n## Base URL\n- Development: `http://localhost:3000`\n- Production: `https://api.smartdelivery.com`\n\n## Authentication\nAll protected endpoints require a Bearer token:\n```\nAuthorization: Bearer <your-jwt-token>\n```\n\n## User Roles\n- **Admin** - Full system access\n- **Manager** - Manage routes and packages\n- **Driver** - View assigned routes, update delivery status",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "gatewayUrl",
+      "value": "{{baseUrl}}",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & Status",
+      "item": [
+        {
+          "name": "Gateway Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{gatewayUrl}}/health",
+            "description": "Check if the API Gateway is running and healthy."
+          },
+          "response": [
+            {
+              "name": "Healthy Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{gatewayUrl}}/health"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"service\": \"api-gateway\",\n  \"status\": \"healthy\",\n  \"timestamp\": \"2024-01-15T10:30:00.000Z\",\n  \"services\": {\n    \"auth\": \"connected\",\n    \"route\": \"connected\",\n    \"package\": \"connected\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get All Services Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{gatewayUrl}}/api/status",
+            "description": "Get the status of all connected microservices."
+          },
+          "response": [
+            {
+              "name": "All Services Running",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{gatewayUrl}}/api/status"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"services\": [\n    {\n      \"name\": \"auth-service\",\n      \"status\": \"healthy\",\n      \"url\": \"http://localhost:3001\",\n      \"latency\": \"12ms\"\n    },\n    {\n      \"name\": \"route-service\",\n      \"status\": \"healthy\",\n      \"url\": \"http://localhost:3002\",\n      \"latency\": \"8ms\"\n    },\n    {\n      \"name\": \"package-service\",\n      \"status\": \"healthy\",\n      \"url\": \"http://localhost:3003\",\n      \"latency\": \"10ms\"\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Auth Service Proxy",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.token) {",
+                  "        pm.environment.set('token', response.data.token);",
+                  "        pm.environment.set('userId', response.data.user.id);",
+                  "        console.log('Token and User ID saved to environment');",
+                  "    }",
+                  "}",
+                  "",
+                  "pm.test('User registered successfully', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response contains token', function() {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.have.property('token');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"johndoe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"securePass123\",\n  \"role\": \"Driver\"\n}"
+            },
+            "url": "{{gatewayUrl}}/api/auth/register",
+            "description": "Register a new user in the system.\n\n**Roles available:**\n- `Driver` - Default role\n- `Admin` - Full access\n- `Manager` - Route and package management"
+          },
+          "response": [
+            {
+              "name": "Successful Registration",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"johndoe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"securePass123\",\n  \"role\": \"Driver\"\n}"
+                },
+                "url": "{{gatewayUrl}}/api/auth/register"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"User registered successfully\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"username\": \"johndoe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"Driver\",\n      \"createdAt\": \"2024-01-15T10:30:00.000Z\"\n    },\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  }\n}"
+            },
+            {
+              "name": "Email Already Exists",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"johndoe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"securePass123\",\n  \"role\": \"Driver\"\n}"
+                },
+                "url": "{{gatewayUrl}}/api/auth/register"
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Email already registered\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.token) {",
+                  "        pm.environment.set('token', response.data.token);",
+                  "        pm.environment.set('userId', response.data.user.id);",
+                  "        pm.environment.set('userRole', response.data.user.role);",
+                  "        console.log('Login successful - Token saved');",
+                  "    }",
+                  "}",
+                  "",
+                  "pm.test('Login successful', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response contains user and token', function() {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data).to.have.property('user');",
+                  "    pm.expect(response.data).to.have.property('token');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"securePass123\"\n}"
+            },
+            "url": "{{gatewayUrl}}/api/auth/login",
+            "description": "Authenticate user and receive JWT token."
+          },
+          "response": [
+            {
+              "name": "Successful Login",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"securePass123\"\n}"
+                },
+                "url": "{{gatewayUrl}}/api/auth/login"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"username\": \"johndoe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"Driver\"\n    },\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n  }\n}"
+            },
+            {
+              "name": "Invalid Credentials",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+                },
+                "url": "{{gatewayUrl}}/api/auth/login"
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Invalid credentials\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Validate Token",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{gatewayUrl}}/api/auth/validate",
+            "description": "Validate the current JWT token."
+          },
+          "response": [
+            {
+              "name": "Valid Token",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": "{{gatewayUrl}}/api/auth/validate"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Token is valid\",\n  \"data\": {\n    \"user\": {\n      \"id\": \"550e8400-e29b-41d4-a716-446655440000\",\n      \"username\": \"johndoe\",\n      \"email\": \"john@example.com\",\n      \"role\": \"Driver\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get User Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{gatewayUrl}}/api/auth/profile",
+            "description": "Get the current authenticated user's profile."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{gatewayUrl}}/api/auth/users",
+            "description": "Get all users in the system. **Admin only.**"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Route Service Proxy",
+      "item": [
+        {
+          "name": "Create Route",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.route) {",
+                  "        pm.environment.set('routeId', response.data.route.id);",
+                  "        console.log('Route ID saved:', response.data.route.id);",
+                  "    }",
+                  "}",
+                  "",
+                  "pm.test('Route created successfully', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Downtown Express Route\",\n  \"startLocation\": {\n    \"address\": \"123 Warehouse Blvd\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zipCode\": \"10001\",\n    \"lat\": 40.7128,\n    \"lng\": -74.0060\n  },\n  \"endLocation\": {\n    \"address\": \"456 Delivery Ave\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zipCode\": \"10002\",\n    \"lat\": 40.7580,\n    \"lng\": -73.9855\n  },\n  \"estimatedDuration\": 45,\n  \"distance\": 12.5,\n  \"stops\": [\n    {\n      \"address\": \"789 Stop St\",\n      \"sequence\": 1\n    }\n  ]\n}"
+            },
+            "url": "{{gatewayUrl}}/api/routes",
+            "description": "Create a new delivery route. **Admin/Manager only.**"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Routes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{gatewayUrl}}/api/routes",
+            "description": "Get all delivery routes."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Route by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{gatewayUrl}}/api/routes/{{routeId}}",
+            "description": "Get a specific route by ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Routes (Driver)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{gatewayUrl}}/api/routes/my-routes",
+            "description": "Get routes assigned to the current driver."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Route",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Route Name\",\n  \"estimatedDuration\": 60,\n  \"status\": \"active\"\n}"
+            },
+            "url": "{{gatewayUrl}}/api/routes/{{routeId}}",
+            "description": "Update an existing route."
+          },
+          "response": []
+        },
+        {
+          "name": "Assign Driver to Route",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"driverId\": \"{{userId}}\"\n}"
+            },
+            "url": "{{gatewayUrl}}/api/routes/{{routeId}}/assign",
+            "description": "Assign a driver to a route. **Admin/Manager only.**"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Route",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{gatewayUrl}}/api/routes/{{routeId}}",
+            "description": "Delete a route. **Admin only.**"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Package Service Proxy",
+      "item": [
+        {
+          "name": "Create Package",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.package) {",
+                  "        pm.environment.set('packageId', response.data.package.id);",
+                  "        pm.environment.set('trackingNumber', response.data.package.trackingNumber);",
+                  "        console.log('Package ID saved:', response.data.package.id);",
+                  "    }",
+                  "}",
+                  "",
+                  "pm.test('Package created successfully', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"senderName\": \"ABC Corporation\",\n  \"senderAddress\": \"123 Business Park, New York, NY 10001\",\n  \"senderPhone\": \"+1-555-100-1000\",\n  \"recipientName\": \"Jane Smith\",\n  \"recipientAddress\": \"456 Residential St, New York, NY 10002\",\n  \"recipientPhone\": \"+1-555-200-2000\",\n  \"weight\": 2.5,\n  \"dimensions\": {\n    \"length\": 30,\n    \"width\": 20,\n    \"height\": 15\n  },\n  \"description\": \"Electronics - Fragile\",\n  \"priority\": \"high\",\n  \"specialInstructions\": \"Handle with care, signature required\"\n}"
+            },
+            "url": "{{gatewayUrl}}/api/packages",
+            "description": "Create a new package for delivery."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Packages",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{gatewayUrl}}/api/packages",
+            "description": "Get all packages in the system."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Package by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{gatewayUrl}}/api/packages/{{packageId}}",
+            "description": "Get a specific package by ID."
+          },
+          "response": []
+        },
+        {
+          "name": "Track Package",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{gatewayUrl}}/api/packages/track/{{trackingNumber}}",
+            "description": "Track a package by tracking number."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Package Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"in-transit\",\n  \"notes\": \"Package picked up from warehouse\",\n  \"location\": \"Distribution Center A\"\n}"
+            },
+            "url": "{{gatewayUrl}}/api/packages/{{packageId}}/status",
+            "description": "Update the status of a package."
+          },
+          "response": []
+        },
+        {
+          "name": "Mark as Delivered",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"signature\": \"Jane Smith\",\n  \"deliveryNotes\": \"Delivered to front door\",\n  \"deliveryPhoto\": \"base64-encoded-image-optional\"\n}"
+            },
+            "url": "{{gatewayUrl}}/api/packages/{{packageId}}/deliver",
+            "description": "Mark a package as delivered. **Driver only.**"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Package",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{gatewayUrl}}/api/packages/{{packageId}}",
+            "description": "Delete a package. **Admin only.**"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

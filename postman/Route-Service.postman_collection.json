@@ -1,0 +1,601 @@
+{
+  "info": {
+    "name": "Smart Delivery - Route Service",
+    "description": "# Route Service\n\nManages delivery routes and driver assignments for the Smart Delivery System.\n\n## Features\n- Create, Read, Update, Delete routes\n- Assign/Unassign drivers to routes\n- Filter routes by status\n- Get driver's assigned routes\n\n## Route Statuses\n| Status | Description |\n|--------|-------------|\n| `active` | Route is currently active |\n| `completed` | Route has been completed |\n| `cancelled` | Route was cancelled |\n\n## Authorization\n| Endpoint | Admin | Manager | Driver |\n|----------|-------|---------|--------|\n| Create Route | ✅ | ✅ | ❌ |\n| Get All Routes | ✅ | ✅ | ✅ |\n| Get My Routes | ✅ | ✅ | ✅ |\n| Update Route | ✅ | ✅ | ❌ |\n| Assign Driver | ✅ | ✅ | ❌ |\n| Delete Route | ✅ | ❌ | ❌ |\n\n## Base URL\n- Direct: `http://localhost:3002`\n- Via Gateway: `http://localhost:3000/api/routes`",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "routeUrl",
+      "value": "{{routeServiceUrl}}",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Service Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{routeUrl}}/health",
+            "description": "Check Route Service health status."
+          },
+          "response": [
+            {
+              "name": "Healthy",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": "{{routeUrl}}/health"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"service\": \"route-service\",\n  \"status\": \"healthy\",\n  \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Routes CRUD",
+      "item": [
+        {
+          "name": "Create Route",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Route created', function() {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has route data', function() {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data.route).to.have.property('id');",
+                  "    pm.expect(response.data.route).to.have.property('name');",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('routeId', response.data.route.id);",
+                  "    console.log('Route ID saved:', response.data.route.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Manhattan Express Route\",\n  \"startLocation\": {\n    \"address\": \"100 Warehouse Way\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zipCode\": \"10001\",\n    \"lat\": 40.7484,\n    \"lng\": -73.9857\n  },\n  \"endLocation\": {\n    \"address\": \"500 Delivery Plaza\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zipCode\": \"10016\",\n    \"lat\": 40.7489,\n    \"lng\": -73.9680\n  },\n  \"estimatedDuration\": 120,\n  \"distance\": 25.5,\n  \"stops\": [\n    {\n      \"address\": \"200 First Stop Ave\",\n      \"city\": \"New York\",\n      \"sequence\": 1,\n      \"estimatedArrival\": \"09:30\"\n    },\n    {\n      \"address\": \"300 Second Stop St\",\n      \"city\": \"New York\",\n      \"sequence\": 2,\n      \"estimatedArrival\": \"10:15\"\n    },\n    {\n      \"address\": \"400 Third Stop Blvd\",\n      \"city\": \"New York\",\n      \"sequence\": 3,\n      \"estimatedArrival\": \"11:00\"\n    }\n  ]\n}"
+            },
+            "url": "{{routeUrl}}/api/routes",
+            "description": "Create a new delivery route.\n\n**Required Role:** Admin, Manager"
+          },
+          "response": [
+            {
+              "name": "Route Created",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Manhattan Express Route\",\n  \"startLocation\": {\n    \"address\": \"100 Warehouse Way\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zipCode\": \"10001\",\n    \"lat\": 40.7484,\n    \"lng\": -73.9857\n  },\n  \"endLocation\": {\n    \"address\": \"500 Delivery Plaza\",\n    \"city\": \"New York\",\n    \"state\": \"NY\",\n    \"zipCode\": \"10016\",\n    \"lat\": 40.7489,\n    \"lng\": -73.9680\n  },\n  \"estimatedDuration\": 120,\n  \"distance\": 25.5\n}"
+                },
+                "url": "{{routeUrl}}/api/routes"
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Route created successfully\",\n  \"data\": {\n    \"route\": {\n      \"id\": \"660e8400-e29b-41d4-a716-446655440000\",\n      \"name\": \"Manhattan Express Route\",\n      \"startLocation\": {\n        \"address\": \"100 Warehouse Way\",\n        \"city\": \"New York\",\n        \"state\": \"NY\",\n        \"zipCode\": \"10001\",\n        \"lat\": 40.7484,\n        \"lng\": -73.9857\n      },\n      \"endLocation\": {\n        \"address\": \"500 Delivery Plaza\",\n        \"city\": \"New York\",\n        \"state\": \"NY\",\n        \"zipCode\": \"10016\",\n        \"lat\": 40.7489,\n        \"lng\": -73.9680\n      },\n      \"estimatedDuration\": 120,\n      \"distance\": 25.5,\n      \"status\": \"active\",\n      \"driverId\": null,\n      \"createdAt\": \"2024-01-15T10:30:00.000Z\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get All Routes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Routes retrieved', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has routes array', function() {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data.routes).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{routeUrl}}/api/routes",
+            "description": "Get all delivery routes."
+          },
+          "response": [
+            {
+              "name": "Routes List",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": "{{routeUrl}}/api/routes"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"count\": 2,\n  \"data\": {\n    \"routes\": [\n      {\n        \"id\": \"660e8400-e29b-41d4-a716-446655440000\",\n        \"name\": \"Manhattan Express Route\",\n        \"status\": \"active\",\n        \"driverId\": \"550e8400-e29b-41d4-a716-446655440001\",\n        \"estimatedDuration\": 120,\n        \"distance\": 25.5\n      },\n      {\n        \"id\": \"660e8400-e29b-41d4-a716-446655440001\",\n        \"name\": \"Brooklyn Local Route\",\n        \"status\": \"active\",\n        \"driverId\": null,\n        \"estimatedDuration\": 90,\n        \"distance\": 18.2\n      }\n    ]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Route by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Route retrieved', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has route data', function() {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.data.route).to.have.property('id');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{routeUrl}}/api/routes/{{routeId}}",
+            "description": "Get a specific route by ID."
+          },
+          "response": [
+            {
+              "name": "Route Details",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": "{{routeUrl}}/api/routes/{{routeId}}"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"route\": {\n      \"id\": \"660e8400-e29b-41d4-a716-446655440000\",\n      \"name\": \"Manhattan Express Route\",\n      \"startLocation\": {\n        \"address\": \"100 Warehouse Way\",\n        \"city\": \"New York\",\n        \"state\": \"NY\",\n        \"zipCode\": \"10001\"\n      },\n      \"endLocation\": {\n        \"address\": \"500 Delivery Plaza\",\n        \"city\": \"New York\",\n        \"state\": \"NY\",\n        \"zipCode\": \"10016\"\n      },\n      \"stops\": [\n        {\n          \"address\": \"200 First Stop Ave\",\n          \"sequence\": 1\n        }\n      ],\n      \"status\": \"active\",\n      \"driverId\": \"550e8400-e29b-41d4-a716-446655440001\",\n      \"estimatedDuration\": 120,\n      \"distance\": 25.5,\n      \"createdAt\": \"2024-01-15T10:30:00.000Z\"\n    }\n  }\n}"
+            },
+            {
+              "name": "Route Not Found",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "url": "{{routeUrl}}/api/routes/invalid-id"
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Route not found\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Routes by Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Routes filtered by status', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{routeUrl}}/api/routes?status=active",
+              "host": ["{{routeUrl}}"],
+              "path": ["api", "routes"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "active",
+                  "description": "Filter by status: active, completed, cancelled"
+                }
+              ]
+            },
+            "description": "Get routes filtered by status."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Routes (Driver)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('My routes retrieved', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{routeUrl}}/api/routes/my-routes",
+            "description": "Get routes assigned to the authenticated driver."
+          },
+          "response": [
+            {
+              "name": "Driver's Routes",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{driverToken}}"
+                  }
+                ],
+                "url": "{{routeUrl}}/api/routes/my-routes"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"count\": 1,\n  \"data\": {\n    \"routes\": [\n      {\n        \"id\": \"660e8400-e29b-41d4-a716-446655440000\",\n        \"name\": \"Manhattan Express Route\",\n        \"status\": \"active\",\n        \"estimatedDuration\": 120,\n        \"distance\": 25.5\n      }\n    ]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Route",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Route updated', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Manhattan Express Route - Updated\",\n  \"estimatedDuration\": 150,\n  \"status\": \"active\"\n}"
+            },
+            "url": "{{routeUrl}}/api/routes/{{routeId}}",
+            "description": "Update an existing route.\n\n**Required Role:** Admin, Manager"
+          },
+          "response": [
+            {
+              "name": "Route Updated",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{token}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Manhattan Express Route - Updated\",\n  \"estimatedDuration\": 150\n}"
+                },
+                "url": "{{routeUrl}}/api/routes/{{routeId}}"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Route updated successfully\",\n  \"data\": {\n    \"route\": {\n      \"id\": \"660e8400-e29b-41d4-a716-446655440000\",\n      \"name\": \"Manhattan Express Route - Updated\",\n      \"estimatedDuration\": 150,\n      \"updatedAt\": \"2024-01-15T11:00:00.000Z\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Route",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Route deleted', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{routeUrl}}/api/routes/{{routeId}}",
+            "description": "Delete a route.\n\n**Required Role:** Admin only"
+          },
+          "response": [
+            {
+              "name": "Route Deleted",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}"
+                  }
+                ],
+                "url": "{{routeUrl}}/api/routes/{{routeId}}"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Route deleted successfully\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Driver Assignment",
+      "item": [
+        {
+          "name": "Assign Driver to Route",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Driver assigned', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"driverId\": \"{{driverId}}\"\n}"
+            },
+            "url": "{{routeUrl}}/api/routes/{{routeId}}/assign",
+            "description": "Assign a driver to a route.\n\n**Required Role:** Admin, Manager"
+          },
+          "response": [
+            {
+              "name": "Driver Assigned",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{managerToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"driverId\": \"550e8400-e29b-41d4-a716-446655440001\"\n}"
+                },
+                "url": "{{routeUrl}}/api/routes/{{routeId}}/assign"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Driver assigned to route successfully\",\n  \"data\": {\n    \"route\": {\n      \"id\": \"660e8400-e29b-41d4-a716-446655440000\",\n      \"name\": \"Manhattan Express Route\",\n      \"driverId\": \"550e8400-e29b-41d4-a716-446655440001\",\n      \"updatedAt\": \"2024-01-15T11:00:00.000Z\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Unassign Driver from Route",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Driver unassigned', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{routeUrl}}/api/routes/{{routeId}}/unassign",
+            "description": "Remove driver assignment from a route.\n\n**Required Role:** Admin, Manager"
+          },
+          "response": [
+            {
+              "name": "Driver Unassigned",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{managerToken}}"
+                  }
+                ],
+                "url": "{{routeUrl}}/api/routes/{{routeId}}/unassign"
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Driver unassigned from route successfully\",\n  \"data\": {\n    \"route\": {\n      \"id\": \"660e8400-e29b-41d4-a716-446655440000\",\n      \"name\": \"Manhattan Express Route\",\n      \"driverId\": null,\n      \"updatedAt\": \"2024-01-15T11:30:00.000Z\"\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Routes by Driver",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Routes by driver retrieved', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": "{{routeUrl}}/api/routes/driver/{{driverId}}",
+            "description": "Get all routes assigned to a specific driver.\n\n**Required Role:** Admin, Manager"
+          },
+          "response": []
+        },
+        {
+          "name": "Complete Route",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Route completed', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completionNotes\": \"All deliveries completed successfully\",\n  \"actualDuration\": 135\n}"
+            },
+            "url": "{{routeUrl}}/api/routes/{{routeId}}/complete",
+            "description": "Mark a route as completed.\n\n**Required Role:** Driver (assigned), Admin, Manager"
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
