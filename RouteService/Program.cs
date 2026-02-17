@@ -38,6 +38,11 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(80); // HTTP
+});
+
 // Configure Swagger
 builder.Services.AddSwaggerGen(c =>
 {

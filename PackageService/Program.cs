@@ -58,8 +58,14 @@ builder.Services.AddSwaggerGen(c =>
     });
 
 });
-    // Configure Database
-    builder.Services.AddDbContext<PackageDbContext>(options =>
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(80); // HTTP
+});
+
+// Configure Database
+builder.Services.AddDbContext<PackageDbContext>(options =>
         options.UseInMemoryDatabase("PackageDb"));
 
     // Configure HttpClient for RouteService

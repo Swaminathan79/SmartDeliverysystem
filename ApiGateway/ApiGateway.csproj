@@ -18,4 +18,10 @@
     <PackageReference Include="Yarp.ReverseProxy" Version="2.3.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AuthService\AuthService.csproj" />
+    <ProjectReference Include="..\PackageService\PackageService.csproj" />
+    <ProjectReference Include="..\RouteService\RouteService.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -4,8 +4,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+EXPOSE 80
 
 
 # This stage is used to build the service project
@@ -13,9 +12,9 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["ApiGateway.csproj", "."]
-COPY ["../PackageService/PackageService.csproj", "../PackageService/"]
-COPY ["../RouteService/RouteService.csproj", "../RouteService/"]
-COPY ["../AuthService/AuthService.csproj", "../AuthService/"]
+COPY ["../PackageService/PackageService.csproj", "PackageService/"]
+COPY ["../RouteService/RouteService.csproj", "RouteService/"]
+COPY ["../AuthService/AuthService.csproj", "AuthService/"]
 RUN dotnet restore "./ApiGateway.csproj"
 COPY . .
 WORKDIR "/src/."
@@ -30,4 +29,7 @@ RUN dotnet publish "./ApiGateway.csproj" -c $BUILD_CONFIGURATION -o /app/publish
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+ENV ASPNETCORE_URLS=http://+:80
+ENV ASPNETCORE_ENVIRONMENT=Development
+
 ENTRYPOINT ["dotnet", "ApiGateway.dll"]

@@ -22,15 +22,14 @@ builder.Services
 builder.Services.AddEndpointsApiExplorer();
 
 // Configure Swagger
-builder.Services.AddSwaggerGen();
-/*builder.Services.AddSwaggerGen(options =>
+builder.Services.AddSwaggerGen(options =>
 {
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "API Gateway",
         Version = "v1"
     }); 
-});*/
+});
 
 var app = builder.Build();
 
@@ -49,7 +48,7 @@ app.UseSwaggerUI(c =>
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-   //app.MapOpenApi();
+  // app.MapOpenApi();
 }
 
 

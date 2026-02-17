@@ -43,6 +43,8 @@ else
 DbContext dbContext = builder.Services.BuildServiceProvider().GetRequiredService<AuthDbContext>();
 dbContext.Database.EnsureCreated();
 
+// ================= LOGGING =================
+
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
@@ -66,7 +68,13 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // Add services to the container
-builder.Services.AddControllers();
+// ================= CONTROLLERS =================
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 
 // Configure Swagger
@@ -103,6 +111,12 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
+
+
+// ================= JWT AUTHENTICATION =================
+var jwtSecret = builder.Configuration["Jwt:Secret"];
+if (string.IsNullOrEmpty(jwtSecret))
+    throw new Exception("JWT Secret missing in configuration");
 
 
 // Configure JWT Authentication
@@ -144,16 +158,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(80); // HTTP
+});
+
+
+builder.Services.AddAuthorization();
+
 //Register FluentValidation
 builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddValidatorsFromAssemblyContaining<JwtService>();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<LoginDto>();
 builder.Services.AddValidatorsFromAssemblyContaining<UpdateUserDto>();
 builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
 
-
-builder.Services.AddAuthorization();
 
 // Register application services
 builder.Services.AddScoped<IAuthService, AuthServiceImpl>();
@@ -170,9 +190,6 @@ using (var scope = app.Services.CreateScope())
     Log.Information("AuthService database initialized");
 }
 
-// Configure middleware pipeline
-app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
-
 app.UseSerilogRequestLogging(options =>
 {
     options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
@@ -188,8 +205,22 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// DEBUGGING PIPELINE START
+app.Use(async (context, next) =>
+{
+    Console.WriteLine($"🔥 Request: {context.Request.Method} {context.Request.Path}");
+    await next();
+});
+
+
+app.UseRouting();
+
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Global exception middleware
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
 app.MapControllers();
 

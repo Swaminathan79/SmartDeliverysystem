@@ -7,25 +7,25 @@ services:
       context: .
       dockerfile: ApiGateway/Dockerfile
     ports:
-      - "5000:8080"
+      - "5000"
 
   authservice:
     build:
       context: .
       dockerfile: AuthService/Dockerfile
     ports:
-      - "5001:8080"
+      - "5001"
 
   packageservice:
     build:
       context: .
       dockerfile: PackageService/Dockerfile
     ports:
-      - "5002:8080"
+      - "5002"
 
   routeservice:
     build:
       context: .
       dockerfile: RouteService/Dockerfile
     ports:
-      - "5003:8080"
+      - "5003"
