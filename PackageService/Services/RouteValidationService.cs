@@ -1,4 +1,4 @@
-﻿using PackageService.Validator;
+﻿using PackageService.BuildingBlocks.Validators;
 using RouteService.DTOs;
 
 namespace PackageService.Services;

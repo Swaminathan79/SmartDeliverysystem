@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RouteService.BuildingBlocks.Middleware;
+using RouteService.BuildingBlocks.Validators;
 using RouteService.Data;
 using RouteService.Repositories;
 using RouteService.Services;
-using RouteService.Validator;
 using Serilog;
 using Serilog.Events;
 using System.Text;
@@ -139,6 +140,13 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = "swagger";
     });
 }
+
+
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
+app.UseRouting();
+
+app.UseCors("AllowAll");
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,7 +1,8 @@
+using Microsoft.EntityFrameworkCore;
+using PackageService.BuildingBlocks.Validators;
 using PackageService.DTOs;
 using PackageService.Models;
 using PackageService.Repositories;
-using PackageService.Validator;
 
 namespace PackageService.Services;
 
@@ -70,15 +71,14 @@ public class PackageServiceImpl : IPackageService
         
         return MapToDto(package);
     }
-    
+
     public async Task<PaginatedResult<PackageDto>> GetAllAsync(int pageNumber, int pageSize)
     {
-        PackageServiceValidator.ValidatePagination(pageNumber, pageSize);
-
+        PackageServiceValidator.ValidatePagination( pageNumber,  pageSize);
 
         var (packages, totalCount) = await _repository.SearchAsync(
             null, null, null, pageNumber, pageSize);
-        
+
         return new PaginatedResult<PackageDto>
         {
             Data = packages.Select(MapToDto),
@@ -88,7 +88,7 @@ public class PackageServiceImpl : IPackageService
             TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize)
         };
     }
-    
+
     public async Task<PaginatedResult<PackageDto>> GetByCustomerAsync(
         int customerId, 
         int pageNumber, 

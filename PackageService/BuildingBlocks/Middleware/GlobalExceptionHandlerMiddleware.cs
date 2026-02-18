@@ -1,7 +1,9 @@
+using PackageService.BuildingBlocks.Exception;
+using PackageService.Services;
+using System.Net;
 using System.Text.Json;
-using AuthService.Services;
 
-namespace AuthService.Middleware;
+namespace PackageService.BuildingBlocks.Middleware;
 
 public class GlobalExceptionHandlerMiddleware
 {
@@ -22,13 +24,15 @@ public class GlobalExceptionHandlerMiddleware
         {
             await _next(context);
         }
-        catch (Exception ex)
+        catch (System.Exception ex)
         {
+            _logger.LogError(ex, ex.Message);
+
             await HandleExceptionAsync(context, ex);
         }
     }
-    
-    private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+
+    private async Task HandleExceptionAsync(HttpContext context, System.Exception exception)
     {
         var errorResponse = new ErrorResponse
         {
@@ -36,76 +40,66 @@ public class GlobalExceptionHandlerMiddleware
             Path = context.Request.Path,
             Method = context.Request.Method
         };
-        
+
         switch (exception)
         {
+            case AppException appEx:
+                _logger.LogWarning(appEx, "Application exception");
+                errorResponse.Error = "Application Error";
+                errorResponse.Message = appEx.Message;
+                errorResponse.StatusCode = appEx.StatusCode;
+                break;
+
             case ValidationException validationEx:
-                _logger.LogWarning(
-                    validationEx,
-                    "Validation error: {Message} | Path: {Path}",
-                    validationEx.Message,
-                    context.Request.Path
-                );
-                
-                context.Response.StatusCode = 400;
+                _logger.LogWarning(validationEx, "Validation error");
                 errorResponse.Error = "Validation Error";
                 errorResponse.Message = validationEx.Message;
                 errorResponse.StatusCode = 400;
                 break;
-            
+
             case UnauthorizedAccessException unauthorizedEx:
-                _logger.LogWarning(
-                    unauthorizedEx,
-                    "Unauthorized access: {Message} | Path: {Path} | User: {User}",
-                    unauthorizedEx.Message,
-                    context.Request.Path,
-                    context.User?.Identity?.Name ?? "Anonymous"
-                );
-                
-                context.Response.StatusCode = 401;
+                _logger.LogWarning(unauthorizedEx, "Unauthorized access");
                 errorResponse.Error = "Unauthorized";
                 errorResponse.Message = unauthorizedEx.Message;
                 errorResponse.StatusCode = 401;
                 break;
-            
+
             case NotFoundException notFoundEx:
-                _logger.LogInformation(
-                    notFoundEx,
-                    "Resource not found: {Message} | Path: {Path}",
-                    notFoundEx.Message,
-                    context.Request.Path
-                );
-                
-                context.Response.StatusCode = 404;
+                _logger.LogInformation(notFoundEx, "Resource not found");
                 errorResponse.Error = "Not Found";
                 errorResponse.Message = notFoundEx.Message;
                 errorResponse.StatusCode = 404;
                 break;
-            
+
+            case ArgumentException argumentEx:
+                _logger.LogWarning(argumentEx, "Bad request");
+                errorResponse.Error = "Bad Request";
+                errorResponse.Message = argumentEx.Message;
+                errorResponse.StatusCode = 400;
+                break;
+
             default:
-                _logger.LogError(
-                    exception,
-                    "Unhandled exception: {Message} | Path: {Path}",
-                    exception.Message,
-                    context.Request.Path
-                );
-                
-                context.Response.StatusCode = 500;
+                _logger.LogError(exception, "Unhandled exception");
                 errorResponse.Error = "Internal Server Error";
                 errorResponse.Message = "An unexpected error occurred";
-                errorResponse.StatusCode = 500;
+                errorResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
                 break;
         }
-        
+
+        context.Response.StatusCode = errorResponse.StatusCode;
         context.Response.ContentType = "application/json";
-        await context.Response.WriteAsync(
-            JsonSerializer.Serialize(errorResponse, new JsonSerializerOptions
+
+        var json = JsonSerializer.Serialize(
+            errorResponse,
+            new JsonSerializerOptions
             {
                 PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            })
-        );
+            });
+
+        await context.Response.WriteAsync(json);
     }
 }
+
 
 public class ErrorResponse
 {

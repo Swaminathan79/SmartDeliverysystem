@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace AuthService.Validation
+namespace AuthService.BuildingBlocks.Validators
 {
     public static class Guard
     {

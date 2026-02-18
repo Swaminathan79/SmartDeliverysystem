@@ -39,4 +39,10 @@
     <ProjectReference Include="..\RouteService\RouteService.csproj" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <Folder Include="BuildingBlocks\Common\" />
+    <Folder Include="BuildingBlocks\Logging\" />
+  </ItemGroup>
+
 </Project>

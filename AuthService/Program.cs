@@ -1,9 +1,10 @@
+using AuthService.BuildingBlocks.Common;
+using AuthService.BuildingBlocks.Validators;
 using AuthService.Data;
 using AuthService.DTOs;
-using AuthService.Middleware;
+using AuthService.BuildingBlocks.Middleware;
+using AuthService.Models;
 using AuthService.Services;
-using AuthService.Validation;
-using AuthService.Validators;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -69,23 +70,37 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
-// ================= JWT CONFIG =================
-var jwtSettings = builder.Configuration.GetSection("Jwt");
-var jwtSecretKey = builder.Configuration["Jwt:Secret"];
-var issuer = jwtSettings["Issuer"];
-var audience = jwtSettings["Audience"];
-
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 
+
+// ================= JWT CONFIG =================
+
+var jwtSettings = builder.Configuration
+    .GetSection("Jwt")
+    .Get<JwtSettings>()
+    ?? throw new InvalidOperationException("JWT configuration missing");
+
+if (string.IsNullOrWhiteSpace(jwtSettings.Secret))
+    throw new InvalidOperationException("JWT Secret not configured");
+
+if (string.IsNullOrWhiteSpace(jwtSettings.Issuer))
+    throw new InvalidOperationException("JWT Issuer not configured");
+
+if (string.IsNullOrWhiteSpace(jwtSettings.Audience))
+    throw new InvalidOperationException("JWT Audience not configured");
+
+var jwtSecretKey = jwtSettings.Secret; // builder.Configuration["Jwt:Secret"];
+var issuer = jwtSettings.Issuer; // builder.Configuration["Jwt:Issuer"];
+var audience = jwtSettings.Audience; // builder.Configuration["Jwt:Audience"];
 
 // Fix: replace an invalid standalone comparison expression with an explicit null/empty check.
 // The original line `builder.Configuration[secret] == null;` produces CS0201 because it's a bare comparison.
 // Here we validate the value read from the "Jwt:Secret" section and throw if missing.
 if (string.IsNullOrEmpty(jwtSecretKey))
 {
-    throw new Exception("JWT Secret missing in configuration (Jwt:Secret)");
+    throw new Exception("JWT Secret missing not configured in configuration (Jwt:Secret)");
 }
 
 // ================= AUTHENTICATION =================
@@ -105,12 +120,35 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = false, // dev mode
         ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero,
         ValidIssuer = issuer,
         ValidAudience = audience,
         IssuerSigningKey =
             new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey))
+
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            var logger = context.HttpContext.RequestServices
+                .GetRequiredService<ILogger<JwtService>>();
+            logger.LogWarning("Authentication failed: {Error}", context.Exception.Message);
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            var logger = context.HttpContext.RequestServices
+                .GetRequiredService<ILogger<JwtService>>();
+            var username = context.Principal?.Identity?.Name;
+            logger.LogDebug("Token validated for user: {Username}", username);
+            return Task.CompletedTask;
+        }
     };
 });
+
+
 
 builder.Services.AddAuthorization();
 
@@ -310,10 +348,6 @@ app.Use(async (context, next) =>
     app.UseAuthorization();
 
     app.MapControllers();
-
-    // Global exception middleware
-    app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
-
 
     try
     {

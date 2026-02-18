@@ -2,7 +2,7 @@
 using AuthService.DTOs;
 
 
-namespace AuthService.Validators
+namespace AuthService.BuildingBlocks.Validators
 {
     public class LoginDtoValidator : AbstractValidator<LoginDto>
     {

@@ -23,64 +23,6 @@ public class AuthController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("ping")]
-    public IActionResult Ping()
-    {
-        try
-        {
-            // You can add a simple check here, e.g., to database connectivity,
-            // but for a basic ping, just returning OK is sufficient.
-            return Ok("Alive - Auth service is up and running.");
-        }
-        catch (Exception ex)
-        {
-            // Log the exception for debugging purposes on the server
-            // _logger.LogError(ex, "Error occurred in Auth/ping endpoint.");
-
-            // Return a more specific error if applicable, or a generic 500
-            // In a real application, avoid exposing raw exception details to the client.
-            return StatusCode(500, "An internal server error occurred while pinging auth service.");
-        }
-    }
-
-
-    [AllowAnonymous]
-    [HttpPost("registerEmpty")]
-    public IActionResult RegisterEmpty()
-    {
-        return Ok("Reached Controller");
-    }
-
-    [AllowAnonymous]
-    [HttpPost("registerObject")]
-    public IActionResult RegisterObject([FromBody] object body)
-    {
-        return Ok(body);
-    }
-
-    [AllowAnonymous]
-    [HttpGet("getToken")]
-    public IActionResult GetToken()
-    {
-        
-        var user = new User
-        {
-            Username = "tokenUser",
-            PasswordHash = "Password"
-        };
-
-
-        var devToken = _jwtService.GenerateToken(user);
-
-        Console.WriteLine("========== DEV JWT TOKEN ==========");
-        Console.WriteLine($"Bearer {devToken}");
-        Console.WriteLine("===================================");
-
-
-        return Ok(devToken);
-    }
-
-    [AllowAnonymous]
     /// <summary>
     /// Register a new user
     /// </summary>
@@ -179,7 +121,7 @@ public class AuthController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("refresh")]
+    /*[HttpPost("refresh")]
     public async Task<IActionResult> Refresh(RefreshTokenRequest request)
     {
         var user = await _authService.ValidateRefreshToken(request.RefreshToken);
@@ -188,5 +130,5 @@ public class AuthController : ControllerBase
 
         return Ok(new { token = newToken });
     }
-
+    */
 }

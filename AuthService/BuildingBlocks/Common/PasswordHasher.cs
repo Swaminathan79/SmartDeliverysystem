@@ -1,4 +1,4 @@
-namespace AuthService.Services;
+namespace AuthService.BuildingBlocks.Common;
 
 public interface IPasswordHasher
 {

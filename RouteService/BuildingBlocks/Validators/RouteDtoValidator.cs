@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using RouteService.DTOs;
 
-namespace RouteService.Validator
+namespace RouteService.BuildingBlocks.Validators
 {
     public class RouteDtoValidator : AbstractValidator<CreateRouteDto>
     {
@@ -22,7 +22,8 @@ namespace RouteService.Validator
                 .MaximumLength(100);
 
             RuleFor(x => x.EstimatedDistanceKm)
-                .GreaterThan(0);
+                .GreaterThan(0)
+                .WithMessage("Estimated Distance Km must be greater than zero");
 
             RuleFor(x => x.ScheduledDate)
                 .Must(date => date.Date >= DateTime.UtcNow.Date)

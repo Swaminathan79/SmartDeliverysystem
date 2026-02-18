@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PackageService.Validator
+namespace PackageService.BuildingBlocks.Validators
 {
     public static class RouteServiceValidator
     {

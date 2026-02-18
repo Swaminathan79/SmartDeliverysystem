@@ -3,7 +3,7 @@ using FluentValidation;
 using System.Text.RegularExpressions;
 using AuthService.Models;
 
-namespace AuthService.Validation
+namespace AuthService.BuildingBlocks.Validators
 {
     public class RegisterDtoValidator : AbstractValidator<RegisterDto>
     {

@@ -2,6 +2,9 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using RouteService.DTOs;
 using RouteService.Models;
 using RouteService.Repositories;
+using System.Diagnostics;
+using System.Timers;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using Route = Microsoft.AspNetCore.Routing.Route;
 
 namespace RouteService.Services;
@@ -84,7 +87,16 @@ public class RouteServiceImpl : IRouteService
             dto.DriverId,
             dto.ScheduledDate
         );
-        
+
+        if (string.IsNullOrWhiteSpace(dto.StartLocation))
+            throw new ValidationException("StartLocation required");
+
+        if (string.IsNullOrWhiteSpace(dto.EndLocation))
+            throw new ValidationException("EndLocation required");
+
+        if (dto.ScheduledDate <= DateTime.UtcNow)
+            throw new ValidationException("Scheduled date must be in future");
+
         // Check for overlapping routes
         var hasOverlap = await _repository.HasOverlappingRoutesAsync(dto.DriverId, dto.ScheduledDate);
 
@@ -99,6 +111,7 @@ public class RouteServiceImpl : IRouteService
         }
         else
         {
+
             var route = new RouteService.Models.Route
             {
                 DriverId = dto.DriverId,
@@ -108,6 +121,19 @@ public class RouteServiceImpl : IRouteService
                 EstimatedDistanceKm = dto.EstimatedDistanceKm,
                 ScheduledDate = dto.ScheduledDate
             };
+
+            //Vehicle double booking - Same vehicle used simultaneously.
+            if (route.ScheduledDate.Date == dto.ScheduledDate.Date)
+            {
+                _logger.LogInformation(
+                    "vehicleId cannot be scheduled twice same date time",
+                    dto.DriverId,
+                    dto.ScheduledDate.Date
+                );
+
+                throw new ValidationException("vehicleId cannot be scheduled twice same date time");
+
+            }
 
             var created = await _repository.AddAsync(route);
 
@@ -155,7 +181,7 @@ public class RouteServiceImpl : IRouteService
             
             if (hasOverlap)
             {
-                throw new ValidationException("Driver already has a route scheduled for this date");
+                throw new ValidationException("Driver already has a route scheduled for this date time");
             }
             
             route.ScheduledDate = dto.ScheduledDate.Value;

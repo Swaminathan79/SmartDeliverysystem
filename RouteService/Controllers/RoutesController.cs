@@ -1,8 +1,9 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RouteService.DTOs;
 using RouteService.Services;
+using Serilog.Core;
+using System.Security.Claims;
 
 namespace RouteService.Controllers;
 
@@ -28,7 +29,16 @@ public class RoutesController : ControllerBase
         [FromQuery] int pageNumber = 1,
         [FromQuery] int pageSize = 10)
     {
-        var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        var userId = int.Parse(userIdClaim ?? "0");
+        if (userId == 0)
+        {
+            _logger.LogInformation("userIdClaim missing → exception");
+            return Unauthorized();
+        }
+
+
         var role = User.FindFirst(ClaimTypes.Role)?.Value;
         
         _logger.LogInformation("GetRoutes called by user {UserId} with role {Role}", userId, role);
@@ -57,7 +67,9 @@ public class RoutesController : ControllerBase
         
         return Ok(routes);
     }
-    
+
+    //GET returns only routes assigned to authenticated driver
+    [Authorize]
     /// <summary>
     /// Get route by ID
     /// </summary>
@@ -99,7 +111,11 @@ public class RoutesController : ControllerBase
     public async Task<ActionResult<RouteDto>> CreateRoute([FromBody] CreateRouteDto dto)
     {
         _logger.LogInformation("Create route request received");
-        
+
+        var driverExists = dto.DriverId;
+        if (driverExists == 0)
+            throw new ValidationException("Driver not found");
+
         var route = await _routeService.CreateAsync(dto);
         
         return CreatedAtAction(nameof(GetRoute), new { id = route.Id }, route);
@@ -171,12 +187,19 @@ public class RoutesController : ControllerBase
         
         // Driver can only search their own routes
         var role = User.FindFirst(ClaimTypes.Role)?.Value;
-        if (role == "Driver")
+        if (role == "Driver") //Roles.Driver
         {
             var driverIdClaim = User.FindFirst("DriverId")?.Value;
+            if (driverIdClaim == null)
+            {
+                return BadRequest(new { message = "Driver ID not found in token" });
+            }
+
             if (driverIdClaim != null)
             {
                 driverId = int.Parse(driverIdClaim);
+                _logger.LogDebug("Fetching routes for driver {DriverId}", driverId);
+
             }
         }
         

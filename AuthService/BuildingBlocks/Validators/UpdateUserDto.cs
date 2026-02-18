@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using AuthService.DTOs;
 
-namespace AuthService.Validators
+namespace AuthService.BuildingBlocks.Validators
 {
     public class UpdateUserDtoValidator : AbstractValidator<UpdateUserDto>
     {

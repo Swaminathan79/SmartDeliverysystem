@@ -7,10 +7,12 @@ using ValidationException = PackageService.Services.ValidationException;
 
 
 
-namespace PackageService.Validator
+namespace PackageService.BuildingBlocks.Validators
 {
     public static class PackageServiceValidator
     {
+        private const int MAX_PAGE_SIZE = 50;
+
         public static void ValidateId(int id)
         {
             if (id <= 0)
@@ -60,6 +62,14 @@ namespace PackageService.Validator
 
             if (pageSize <= 0)
                 throw new ValidationException("PageSize must be greater than zero.");
+
+            // Clamp max page size (VERY IMPORTANT)
+            if (pageSize > MAX_PAGE_SIZE)
+                pageSize = MAX_PAGE_SIZE;
+
+            if (pageNumber < 1) pageNumber = 1;
+            if (pageSize < 1) pageSize = MAX_PAGE_SIZE;
+
         }
     }
 

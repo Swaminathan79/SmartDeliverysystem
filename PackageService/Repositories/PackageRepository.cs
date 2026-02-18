@@ -13,7 +13,7 @@ public interface IPackageRepository
     Task<Package> AddAsync(Package package);
     Task UpdateAsync(Package package);
     Task DeleteAsync(int id);
-    Task<(IEnumerable<Package> Packages, int TotalCount)> SearchAsync(
+    Task<(List<Package> Packages, int TotalCount)> SearchAsync(
         string? trackingNumber,
         PackageStatus? status,
         int? customerId,
@@ -77,7 +77,7 @@ public class PackageRepository : IPackageRepository
         }
     }
 
-    public async Task<(IEnumerable<Package> Packages, int TotalCount)> SearchAsync(
+    public async Task<(List<Package> Packages, int TotalCount)> SearchAsync(
         string? trackingNumber,
         PackageStatus? status,
         int? customerId,

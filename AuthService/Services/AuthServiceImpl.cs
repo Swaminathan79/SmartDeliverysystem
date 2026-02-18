@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using AuthService.BuildingBlocks.Common;
 using AuthService.Data;
 using AuthService.DTOs;
 using AuthService.Models;
@@ -137,13 +138,13 @@ public class AuthServiceImpl : IAuthService
 
         return new LoginResponseDto
         {
-            Token = token,
-            UserId = user.Id,
+            Token = token
+           /* UserId = user.Id,
             Username = user.Username,
             Email = user.Email,
             Role = user.Role.ToString(),
            // DriverId = user.DriverId,
-            ExpiresAt = DateTime.UtcNow.AddHours(8)
+            ExpiresAt = DateTime.UtcNow.AddHours(8) */
         };
     }
 

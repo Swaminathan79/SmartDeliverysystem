@@ -9,10 +9,11 @@ using PackageService.Services;
 using RouteService.Data;
 using RouteService.Repositories;
 using RouteService.Services;
-using RouteService.Validator;
+using PackageService.BuildingBlocks.Validators;
 using Serilog;
 using Serilog.Events;
 using System.Text;
+using PackageService.BuildingBlocks.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -172,50 +173,62 @@ builder.Services.AddScoped<IRouteValidationService, RouteValidationService>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<RouteValidationService>();
 
+
 var app = builder.Build();
 
-    // Initialize database
-    using (var scope = app.Services.CreateScope())
-    {
-        var context = scope.ServiceProvider.GetRequiredService<PackageDbContext>();
-        context.Database.EnsureCreated();
-        Log.Information("PackageService database initialized");
+// Initialize database
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<PackageDbContext>();
+    context.Database.EnsureCreated();
+    Log.Information("PackageService database initialized");
 
-        context.Database.EnsureDeleted();   // deletes all data
-        context.Database.EnsureCreated();   // recreate schema
+    context.Database.EnsureDeleted();   // deletes all data
+    context.Database.EnsureCreated();   // recreate schema
 }
 
-    // Configure middleware
-    app.UseSerilogRequestLogging(options =>
+// Configure middleware
+app.UseSerilogRequestLogging(options =>
+{
+    options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+});
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
     {
-        options.MessageTemplate = "HTTP {RequestMethod} {RequestPath} responded {StatusCode} in {Elapsed:0.0000} ms";
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "PackageService API v1");
+        c.RoutePrefix = "swagger";
     });
+}
 
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI(c =>
-        {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "PackageService API v1");
-            c.RoutePrefix = "swagger";
-        });
-    }
 
-    app.UseAuthentication();
-    app.UseAuthorization();
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
-    app.MapControllers();
+app.UseRouting();
 
-    try
-    {
-        Log.Information("Starting PackageService on {Url}", builder.Configuration["Urls"]);
-        app.Run();
-    }
-    catch (Exception ex)
-    {
-        Log.Fatal(ex, "PackageService terminated unexpectedly");
-    }
-    finally
-    {
-        Log.CloseAndFlush();
-    }
+app.UseCors("AllowAll");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+
+// Global exception middleware
+app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
+try
+{
+    Log.Information("Starting PackageService on {Url}", builder.Configuration["Urls"]);
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "PackageService terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
