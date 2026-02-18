@@ -1,4 +1,6 @@
+using AuthService.Data;
 using AuthService.DTOs;
+using AuthService.Models;
 using AuthService.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,18 +12,36 @@ namespace AuthService.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
-    private readonly JwtService _jwtService;
+    private readonly IJwtService _jwtService;
     private readonly ILogger<AuthController> _logger;
     
-    public AuthController(IAuthService authService, JwtService jwtService, ILogger<AuthController> logger)
-    {
+    public AuthController(IAuthService authService, IJwtService jwtService, ILogger<AuthController> logger)
+    { 
         _authService = authService;
         _jwtService = jwtService;
         _logger = logger;
     }
 
+    [AllowAnonymous]
     [HttpGet("ping")]
-    public IActionResult Ping() => Ok("Alive");
+    public IActionResult Ping()
+    {
+        try
+        {
+            // You can add a simple check here, e.g., to database connectivity,
+            // but for a basic ping, just returning OK is sufficient.
+            return Ok("Alive - Auth service is up and running.");
+        }
+        catch (Exception ex)
+        {
+            // Log the exception for debugging purposes on the server
+            // _logger.LogError(ex, "Error occurred in Auth/ping endpoint.");
+
+            // Return a more specific error if applicable, or a generic 500
+            // In a real application, avoid exposing raw exception details to the client.
+            return StatusCode(500, "An internal server error occurred while pinging auth service.");
+        }
+    }
 
 
     [AllowAnonymous]
@@ -37,10 +57,34 @@ public class AuthController : ControllerBase
     {
         return Ok(body);
     }
+
+    [AllowAnonymous]
+    [HttpGet("getToken")]
+    public IActionResult GetToken()
+    {
+        
+        var user = new User
+        {
+            Username = "tokenUser",
+            PasswordHash = "Password"
+        };
+
+
+        var devToken = _jwtService.GenerateToken(user);
+
+        Console.WriteLine("========== DEV JWT TOKEN ==========");
+        Console.WriteLine($"Bearer {devToken}");
+        Console.WriteLine("===================================");
+
+
+        return Ok(devToken);
+    }
+
+    [AllowAnonymous]
     /// <summary>
     /// Register a new user
     /// </summary>
-    [HttpPost("register")]
+    [HttpPost("registerUser")]
     public async Task<ActionResult<UserDto>> Register([FromBody] RegisterDto dto)
     {
         _logger.LogInformation(
@@ -56,7 +100,8 @@ public class AuthController : ControllerBase
             user
         );
     }
-    
+
+    [AllowAnonymous]
     /// <summary>
     /// Login and receive JWT token
     /// </summary>

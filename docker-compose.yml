@@ -14,7 +14,7 @@ services:
       context: .
       dockerfile: AuthService/Dockerfile
     ports:
-      - "5001"
+      - "5001:80"
 
   packageservice:
     build:

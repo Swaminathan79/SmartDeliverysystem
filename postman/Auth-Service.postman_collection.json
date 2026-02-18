@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "43c51be3-ab65-4559-9069-d46a18950e70",
     "name": "Smart Delivery - Auth Service",
-    "description": "# Auth Service\n\nManages Authentication & Authorization for the Smart Delivery System.\n\n## Features\n- User Registration & Login\n- JWT Token Generation & Validation\n- Role-Based Access Control (RBAC)\n- User Management (Admin)\n\n## User Roles\n| Role | Description | Permissions |\n|------|-------------|-------------|\n| **Admin** | System Administrator | Full access to all endpoints |\n| **Manager** | Operations Manager | Manage routes, packages, view users |\n| **Driver** | Delivery Driver | View assigned routes, update delivery status |\n\n## JWT Token\n- Expires in 24 hours\n- Include in Authorization header: `Bearer <token>`\n\n## Base URL\n- Direct: `http://localhost:3001`\n- Via Gateway: `http://localhost:3000/api/auth`",
+    "description": "# Auth Service\n\nManages Authentication & Authorization for the Smart Delivery System.\n\n## Features\n\n- User Registration & Login\n    \n- JWT Token Generation & Validation\n    \n- Role-Based Access Control (RBAC)\n    \n- User Management (Admin)\n    \n\n## User Roles\n\n| Role | Description | Permissions |\n| --- | --- | --- |\n| **Admin** | System Administrator | Full access to all endpoints |\n| **Manager** | Operations Manager | Manage routes, packages, view users |\n| **Driver** | Delivery Driver | View assigned routes, update delivery status |\n\n## JWT Token\n\n- Expires in 24 hours\n    \n- Include in Authorization header: `Bearer`\n    \n\n## Base URL\n\n- Direct: `http://localhost:3001`\n    \n- Via Gateway: `http://localhost:3000/api/auth`",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [

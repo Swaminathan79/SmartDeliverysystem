@@ -14,6 +14,8 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using System.Threading;
 
@@ -40,8 +42,8 @@ else
      ));
 }
 
-DbContext dbContext = builder.Services.BuildServiceProvider().GetRequiredService<AuthDbContext>();
-dbContext.Database.EnsureCreated();
+//DbContext dbContext = builder.Services.BuildServiceProvider().GetRequiredService<AuthDbContext>();
+//dbContext.Database.EnsureCreated();
 
 // ================= LOGGING =================
 
@@ -67,6 +69,52 @@ Log.Logger = new LoggerConfiguration()
 
 builder.Host.UseSerilog();
 
+// ================= JWT CONFIG =================
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var jwtSecretKey = builder.Configuration["Jwt:Secret"];
+var issuer = jwtSettings["Issuer"];
+var audience = jwtSettings["Audience"];
+
+builder.Services.AddControllers();
+
+builder.Services.AddEndpointsApiExplorer();
+
+
+// Fix: replace an invalid standalone comparison expression with an explicit null/empty check.
+// The original line `builder.Configuration[secret] == null;` produces CS0201 because it's a bare comparison.
+// Here we validate the value read from the "Jwt:Secret" section and throw if missing.
+if (string.IsNullOrEmpty(jwtSecretKey))
+{
+    throw new Exception("JWT Secret missing in configuration (Jwt:Secret)");
+}
+
+// ================= AUTHENTICATION =================
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = false, // dev mode
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = issuer,
+        ValidAudience = audience,
+        IssuerSigningKey =
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey))
+    };
+});
+
+builder.Services.AddAuthorization();
+
+
 // Add services to the container
 // ================= CONTROLLERS =================
 builder.Services.AddControllers()
@@ -86,16 +134,20 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1",
         Description = "Centralized Authentication Service for Smart Delivery System"
     });
-    
+
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token",
         Name = "Authorization",
+        //Type = SecuritySchemeType.ApiKey,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token"
+
+
     });
-    
+
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -103,8 +155,9 @@ builder.Services.AddSwaggerGen(c =>
             {
                 Reference = new OpenApiReference
                 {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
+                    Id = "Bearer",
+                    Type = ReferenceType.SecurityScheme
+
                 }
             },
             Array.Empty<string>()
@@ -112,59 +165,32 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-
-// ================= JWT AUTHENTICATION =================
-var jwtSecret = builder.Configuration["Jwt:Secret"];
-if (string.IsNullOrEmpty(jwtSecret))
-    throw new Exception("JWT Secret missing in configuration");
-
-
-// Configure JWT Authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ClockSkew = TimeSpan.Zero,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"] ?? 
-                    throw new InvalidOperationException("JWT Secret not configured"))
-            )
-        };
-        
-        options.Events = new JwtBearerEvents
-        {
-            OnAuthenticationFailed = context =>
-            {
-                var logger = context.HttpContext.RequestServices
-                    .GetRequiredService<ILogger<Program>>();
-                logger.LogWarning("Authentication failed: {Error}", context.Exception.Message);
-                return Task.CompletedTask;
-            },
-            OnTokenValidated = context =>
-            {
-                var logger = context.HttpContext.RequestServices
-                    .GetRequiredService<ILogger<Program>>();
-                var username = context.Principal?.Identity?.Name;
-                logger.LogDebug("Token validated for user: {Username}", username);
-                return Task.CompletedTask;
-            }
-        };
-    });
-
-builder.WebHost.ConfigureKestrel(options =>
+/*builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(80); // HTTP
+    options.ListenAnyIP(5001);
+});*/
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.AddServer(new OpenApiServer
+    {
+        Url = "/"
+    });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 
-builder.Services.AddAuthorization();
+// ================= APP =================
+
 
 //Register FluentValidation
 builder.Services.AddFluentValidationAutoValidation();
@@ -180,7 +206,18 @@ builder.Services.AddScoped<IAuthService, AuthServiceImpl>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 
+
 var app = builder.Build();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseHttpsRedirection();
+
+// ORDER IS IMPORTANT
+app.UseAuthentication();
+app.UseAuthorization();
+
 
 // Initialize database
 using (var scope = app.Services.CreateScope())
@@ -197,6 +234,7 @@ app.UseSerilogRequestLogging(options =>
 
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
@@ -205,38 +243,88 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-// DEBUGGING PIPELINE START
-app.Use(async (context, next) =>
+
+// ================= AUTO DEV TOKEN by API=================
+
+// 🔥 This creates a token automatically
+app.MapGet("/dev/token", () =>
 {
-    Console.WriteLine($"🔥 Request: {context.Request.Method} {context.Request.Path}");
-    await next();
+    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey));
+    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+    var token = new JwtSecurityToken(
+        issuer: issuer,
+        audience: audience,
+        claims: new[]
+        {
+            new Claim(ClaimTypes.Name, "dev-user"),
+            new Claim(ClaimTypes.Role, "Admin")
+        },
+        expires: DateTime.UtcNow.AddYears(1),
+        signingCredentials: creds
+    );
+
+    var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+    Console.WriteLine("========== DEV Auto Generated JWT TOKEN ==========");
+    Console.WriteLine($"Bearer {tokenString}");
+    Console.WriteLine("===================================");
+
+    return Results.Ok(new
+    {
+        token = tokenString,
+        authorizationHeader = $"Bearer {tokenString}"
+    });
+
+
 });
 
+// Configure JWT Authentication
 
-app.UseRouting();
+
+//builder.WebHost.ConfigureKestrel(options =>
+///{
+//options.ListenAnyIP(80); // HTTP
+//});
 
 
-app.UseAuthentication();
-app.UseAuthorization();
+// DEBUGGING PIPELINE START
+app.Use(async (context, next) =>
+    {
+        Console.WriteLine($"🔥 Request: {context.Request.Method} {context.Request.Path}");
+        await next();
+    });
 
-// Global exception middleware
-app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+    app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
-app.MapControllers();
+    app.UseRouting();
 
-try
-{
-    Log.Information("Starting AuthService on {Url}", builder.Configuration["Urls"]);
-    app.Run();
-}
-catch (Exception ex)
-{
-    Log.Fatal(ex, "AuthService terminated unexpectedly");
-}
-finally
-{
-    Log.CloseAndFlush();
-}
+    app.UseCors("AllowAll");
+
+    //app.UseHttpsRedirection();
+
+    app.UseAuthentication();   // MUST before Authorization
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    // Global exception middleware
+    app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+
+
+    try
+    {
+        Log.Information("Starting AuthService on {Url}", builder.Configuration["Urls"]);
+        app.Run();
+    }
+    catch (Exception ex)
+    {
+        Log.Fatal(ex, "AuthService terminated unexpectedly");
+    }
+    finally
+    {
+        Log.CloseAndFlush();
+    }
 
 // Local custom enricher to supply a per-log-event ThreadId property.
 // This avoids the need to add the external Serilog.Enrichers.Thread package.

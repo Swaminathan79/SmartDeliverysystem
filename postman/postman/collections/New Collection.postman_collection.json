@@ -112,6 +112,18 @@
         "description": "http://localhost:5001/api/auth/login"
       },
       "response": []
+    },
+    {
+      "name": "Token",
+      "id": "734854df-eff4-4334-8c7f-78d7e8a9c371",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": ""
+        }
+      },
+      "response": []
     }
   ]
 }
