@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using RouteService.DTOs;
 using RouteService.Models;
 using RouteService.Repositories;
@@ -86,7 +87,7 @@ public class RouteServiceImpl : IRouteService
         
         // Check for overlapping routes
         var hasOverlap = await _repository.HasOverlappingRoutesAsync(dto.DriverId, dto.ScheduledDate);
-        
+
         if (hasOverlap)
         {
             _logger.LogWarning(
@@ -96,27 +97,29 @@ public class RouteServiceImpl : IRouteService
             );
             throw new ValidationException("Driver already has a route scheduled for this date");
         }
-        
-        var route = new RouteService.Models.Route
+        else
         {
-            DriverId = dto.DriverId,
-            VehicleId = dto.VehicleId,
-            StartLocation = dto.StartLocation,
-            EndLocation = dto.EndLocation,
-            EstimatedDistanceKm = dto.EstimatedDistanceKm,
-            ScheduledDate = dto.ScheduledDate
-        };
-        
-        var created = await _repository.AddAsync(route);
-        
-        _logger.LogInformation(
-            "Route created: RouteId {RouteId}, DriverId {DriverId}, Distance {Distance}km",
-            created.Id,
-            created.DriverId,
-            created.EstimatedDistanceKm
-        );
-        
-        return MapToDto(created);
+            var route = new RouteService.Models.Route
+            {
+                DriverId = dto.DriverId,
+                VehicleId = dto.VehicleId,
+                StartLocation = dto.StartLocation,
+                EndLocation = dto.EndLocation,
+                EstimatedDistanceKm = dto.EstimatedDistanceKm,
+                ScheduledDate = dto.ScheduledDate
+            };
+
+            var created = await _repository.AddAsync(route);
+
+            _logger.LogInformation(
+                "Route created: RouteId {RouteId}, DriverId {DriverId}, Distance {Distance}km",
+                created.Id,
+                created.DriverId,
+                created.EstimatedDistanceKm
+            );
+
+            return MapToDto(created);
+        }
     }
     
     public async Task<RouteDto> UpdateAsync(int id, UpdateRouteDto dto)

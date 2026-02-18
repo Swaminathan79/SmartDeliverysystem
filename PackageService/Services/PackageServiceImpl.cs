@@ -1,6 +1,7 @@
 using PackageService.DTOs;
 using PackageService.Models;
 using PackageService.Repositories;
+using PackageService.Validator;
 
 namespace PackageService.Services;
 
@@ -122,7 +123,7 @@ public class PackageServiceImpl : IPackageService
         PackageServiceValidator.ValidateCreateDto(dto);
 
         // Validate route exists via RouteService
-        var routeExists = await _routeValidationService.ValidateRouteExistsAsync(dto.RouteId);
+        /*var routeExists = await _routeValidationService.ValidateRouteExistsAsync(dto.RouteId);
         
         if (!routeExists)
         {
@@ -132,7 +133,7 @@ public class PackageServiceImpl : IPackageService
             );
             throw new ValidationException($"Route with ID {dto.RouteId} does not exist");
         }
-        
+        */
         // Generate unique tracking number
         var trackingNumber = await GenerateUniqueTrackingNumber();
         

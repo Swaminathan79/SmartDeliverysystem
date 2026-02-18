@@ -1,13 +1,18 @@
-using System.Text;
-using Microsoft.OpenApi.Models;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using PackageService.Data;
 using PackageService.Repositories;
 using PackageService.Services;
+using RouteService.Data;
+using RouteService.Repositories;
+using RouteService.Services;
+using RouteService.Validator;
 using Serilog;
 using Serilog.Events;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +44,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 // Configure Swagger
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -57,12 +63,26 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer"
     });
 
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
-builder.WebHost.ConfigureKestrel(options =>
+/*builder.WebHost.ConfigureKestrel(options =>
 {
     options.ListenAnyIP(80); // HTTP
-});
+});*/
 
 // Configure Database
 builder.Services.AddDbContext<PackageDbContext>(options =>
@@ -77,8 +97,28 @@ builder.Services.AddDbContext<PackageDbContext>(options =>
         client.DefaultRequestHeaders.Add("Accept", "application/json");
     });
 
-    // Configure JWT Authentication
-    builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+
+// Configure JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ClockSkew = TimeSpan.Zero,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"] ??
+                    throw new InvalidOperationException("JWT Secret not configured"))
+            )
+        };
+    });
+
+/*builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         .AddJwtBearer(options =>
         {
             options.TokenValidationParameters = new TokenValidationParameters
@@ -115,15 +155,24 @@ builder.Services.AddDbContext<PackageDbContext>(options =>
                 }
             };
         });
+    */
 
-    builder.Services.AddAuthorization();
+builder.Services.AddDbContext<RouteDbContext>(options =>
+    options.UseInMemoryDatabase("RouteDb"));
+builder.Services.AddAuthorization();
 
     // Register application services
-    builder.Services.AddScoped<IPackageRepository, PackageRepository>();
-    builder.Services.AddScoped<IPackageService, PackageServiceImpl>();
-    builder.Services.AddScoped<IRouteValidationService, RouteValidationService>();
+builder.Services.AddScoped<IPackageRepository, PackageRepository>();
+builder.Services.AddScoped<IPackageService, PackageServiceImpl>();
 
-    var app = builder.Build();
+builder.Services.AddScoped<IRouteRepository, RouteRepository>();
+builder.Services.AddScoped<IRouteService, RouteServiceImpl>();
+
+builder.Services.AddScoped<IRouteValidationService, RouteValidationService>();
+
+builder.Services.AddValidatorsFromAssemblyContaining<RouteValidationService>();
+
+var app = builder.Build();
 
     // Initialize database
     using (var scope = app.Services.CreateScope())
@@ -131,7 +180,10 @@ builder.Services.AddDbContext<PackageDbContext>(options =>
         var context = scope.ServiceProvider.GetRequiredService<PackageDbContext>();
         context.Database.EnsureCreated();
         Log.Information("PackageService database initialized");
-    }
+
+        context.Database.EnsureDeleted();   // deletes all data
+        context.Database.EnsureCreated();   // recreate schema
+}
 
     // Configure middleware
     app.UseSerilogRequestLogging(options =>

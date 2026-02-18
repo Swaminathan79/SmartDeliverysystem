@@ -225,6 +225,9 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
     context.Database.EnsureCreated();
     Log.Information("AuthService database initialized");
+
+    context.Database.EnsureDeleted();   // deletes all data
+    context.Database.EnsureCreated();   // recreate schema
 }
 
 app.UseSerilogRequestLogging(options =>

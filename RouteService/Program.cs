@@ -38,10 +38,10 @@ builder.Host.UseSerilog();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-builder.WebHost.ConfigureKestrel(options =>
+/*builder.WebHost.ConfigureKestrel(options =>
 {
     options.ListenAnyIP(80); // HTTP
-});
+});*/
 
 // Configure Swagger
 builder.Services.AddSwaggerGen(c =>
@@ -118,7 +118,11 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<RouteDbContext>();
     context.Database.EnsureCreated();
     Log.Information("RouteService database initialized");
+
+    context.Database.EnsureDeleted();   // deletes all data
+    context.Database.EnsureCreated();   // recreate schema
 }
+
 
 // Configure middleware
 app.UseSerilogRequestLogging(options =>

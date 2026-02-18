@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Delivery System - Complete Documentation</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+    mermaid.initialize({ startOnLoad:true });
+    </script>
+
     <style>
         * {
             margin: 0;
@@ -156,9 +161,12 @@
             border-radius: 8px;
             margin: 15px 0;
             overflow-x: auto;
-            font-family: 'Courier New', monospace;
+            /*font-family: 'Courier New', monospace;*/
             font-size: 0.9em;
             line-height: 1.5;
+            white-space: pre;
+            font-family: monospace;
+            overflow-x: auto;
         }
         
         .inline-code {
@@ -296,11 +304,17 @@
     <div class="container">
         <aside class="sidebar">
             <h3>Documentation</h3>
-            <div class="nav-item active" onclick="showSection('overview')">
+			 <div class="nav-item active" onclick="showSection('home')">
+                🏠 Home
+            </div>
+            <div class="nav-item" onclick="showSection('overview')">
                 🏠 Overview
             </div>
-            <div class="nav-item" onclick="showSection('architecture')">
-                🏗️ Architecture
+            <div class="nav-item" onclick="showSection('architecturedesign')">
+                🏗️ System Architecture Design
+            </div>
+			<div class="nav-item" onclick="showSection('architectureoverview')">
+                🏗️ Architecture Overview
             </div>
             <div class="nav-item" onclick="showSection('authservice')">
                 🔐 AuthService <span class="badge new">NEW</span>
@@ -333,6 +347,66 @@
         
         <main class="content">
             <!-- OVERVIEW SECTION -->
+			 <!-- HOME SECTION -->
+            <section id="home" class="section active">
+                <h2>Welcome to Smart Delivery System</h2>
+                
+                <p>A modern, microservices-based delivery routing and package tracking system built with ASP.NET Core, demonstrating best practices in API design, authentication, and asynchronous programming.</p>
+                
+				<h3>🛠 Tech Stack</h3>
+                <div class="tech-stack">
+                    <span class="tech-badge">ASP.NET Core 8.0</span>
+                    <span class="tech-badge">Entity Framework Core</span>
+                    <span class="tech-badge">JWT Bearer Auth</span>
+                    <span class="tech-badge">BCrypt.Net</span>
+                    <span class="tech-badge">Serilog</span>
+                    <span class="tech-badge">Seq (Optional)</span>
+                    <span class="tech-badge">xUnit Testing</span>
+                    <span class="tech-badge">Swagger/Postman</span>
+                    <span class="tech-badge">Moq</span>
+                    <span class="tech-badge">Docker Container</span>
+                </div>
+				
+				<h3>📋 Requirements Coverage</h3>
+                <table class="table">
+                    <tr>
+                        <th>Requirement</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>Two Microservices (Route & Package)</td>
+                        <td>✅ Implemented</td>
+                    </tr>
+                    <tr>
+                        <td>JWT Authentication & Authorization</td>
+                        <td>✅ Implemented</td>
+                    </tr>
+                    <tr>
+                        <td>Entity Framework Core</td>
+                        <td>✅ Implemented</td>
+                    </tr>
+                    <tr>
+                        <td>Async/Await Pattern</td>
+                        <td>✅ Implemented</td>
+                    </tr>
+                    <tr>
+                        <td>Unit Testing</td>
+                        <td>✅ Implemented</td>
+                    </tr>
+                    <tr>
+                        <td>Pagination & Search</td>
+                        <td>✅ Implemented</td>
+                    </tr>
+                    <tr>
+                        <td>Swagger Documentation</td>
+                        <td>✅ Bonus Completed</td>
+                    </tr>
+                    <tr>
+                        <td>Docker Support</td>
+                        <td>✅ Bonus Completed</td>
+                    </tr>
+                </table>
+            </section>
             <section id="overview" class="section active">
                 <h2>System Overview</h2>
                 
@@ -388,18 +462,7 @@
                     <li><strong>Async Operations:</strong> Full async/await implementation</li>
                 </ul>
                 
-                <h3>🛠 Tech Stack</h3>
-                <div class="tech-stack">
-                    <span class="tech-badge">ASP.NET Core 8.0</span>
-                    <span class="tech-badge">Entity Framework Core</span>
-                    <span class="tech-badge">JWT Bearer Auth</span>
-                    <span class="tech-badge">BCrypt.Net</span>
-                    <span class="tech-badge">Serilog</span>
-                    <span class="tech-badge">Seq (Optional)</span>
-                    <span class="tech-badge">xUnit</span>
-                    <span class="tech-badge">Moq</span>
-                    <span class="tech-badge">Docker</span>
-                </div>
+                
                 
                 <h3>👥 User Roles</h3>
                 <table class="table">
@@ -451,10 +514,10 @@
             </section>
             
             <!-- ARCHITECTURE SECTION -->
-            <section id="architecture" class="section">
+            <section id="architecturedesign" class="section">
                 <h2>System Architecture</h2>
                 
-                <h3>Architecture Diagram</h3>
+                <h3>Architecture & Design Diagram</h3>
                 <div class="code-block">┌─────────────────────────────────────────────────────────────┐
 │                        Client Layer                         │
 │          (Web App / Mobile App / Postman / Swagger)        │
@@ -574,6 +637,63 @@ PackageService
 └── CreatedAt (datetime)</div>
             </section>
             
+			
+			  <!-- ARCHITECTURE SECTION -->
+            <section id="architectureoverview" class="section">
+                <h2>Architecture  Overview</h3>
+                <p>The Smart Delivery System follows a microservices architecture pattern with two independent services communicating via HTTP APIs.</p>
+                
+                <div class="info-box">
+                    <strong>Design Principle:</strong> Each microservice has its own database (in-memory for this demo) and is independently deployable. Services communicate through well-defined REST APIs.
+                </div>
+                
+                <h3>Service Boundaries</h3>
+                
+                <h4>RouteService</h4>
+                <p><strong>Responsibility:</strong> Manages all route-related operations including driver assignments and scheduling.</p>
+                
+                <p><strong>Key Endpoints:</strong></p>
+                <ul>
+                    <li><span class="inline-code">GET /api/routes</span> - List routes (filtered by driver for non-admins)</li>
+                    <li><span class="inline-code">GET /api/routes/{id}</span> - Get route details</li>
+                    <li><span class="inline-code">POST /api/routes</span> - Create new route</li>
+                    <li><span class="inline-code">PUT /api/routes/{id}</span> - Update route</li>
+                    <li><span class="inline-code">DELETE /api/routes/{id}</span> - Delete route</li>
+                    <li><span class="inline-code">POST /api/routes/{id}/assign-driver</span> - Assign driver (Admin only)</li>
+                    <li><span class="inline-code">GET /api/routes/search</span> - Search with pagination</li>
+                </ul>
+                
+                <p><strong>Business Rules:</strong></p>
+                <ul>
+                    <li>Estimated distance must be greater than zero</li>
+                    <li>No overlapping routes for the same driver on the same date</li>
+                    <li>Drivers can only view their own routes</li>
+                    <li>Only admins can assign drivers to routes</li>
+                </ul>
+                
+                <h4>PackageService</h4>
+                <p><strong>Responsibility:</strong> Manages package lifecycle from creation to delivery.</p>
+                
+                <p><strong>Key Endpoints:</strong></p>
+                <ul>
+                    <li><span class="inline-code">GET /api/packages</span> - List packages</li>
+                    <li><span class="inline-code">GET /api/packages/{id}</span> - Get package details</li>
+                    <li><span class="inline-code">POST /api/packages</span> - Create package</li>
+                    <li><span class="inline-code">PUT /api/packages/{id}</span> - Update package</li>
+                    <li><span class="inline-code">PATCH /api/packages/{id}/status</span> - Update status</li>
+                    <li><span class="inline-code">GET /api/packages/tracking/{trackingNumber}</span> - Track package</li>
+                    <li><span class="inline-code">GET /api/packages/search</span> - Search packages</li>
+                </ul>
+                
+                <p><strong>Business Rules:</strong></p>
+                <ul>
+                    <li>Weight must be greater than zero</li>
+                    <li>Route must exist before assigning package (validated via RouteService)</li>
+                    <li>Status transitions: Pending → InTransit → Delivered</li>
+                    <li>Cannot mark as delivered unless route date is today or earlier</li>
+                    <li>Drivers can only update packages on their assigned routes</li>
+                </ul>
+          </section>
             <!-- AUTHSERVICE SECTION -->
             <section id="authservice" class="section">
                 <h2>AuthService - Centralized Authentication</h2>
