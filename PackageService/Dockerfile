@@ -4,29 +4,68 @@
 # For more information, please see https://aka.ms/containercompat
 
 # This stage is used when running from VS in fast mode (Default for Debug configuration)
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS base
+# ======================
+# BASE RUNTIME IMAGE
+# ======================
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 5002
+ENV ASPNETCORE_URLS=http://+:5002
 
+
+# install curl for healthcheck
+USER root
+RUN apt-get update \
+    && apt-get install -y curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # This stage is used to build the service project
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS build
+# ======================
+# BUILD STAGE
+# ======================
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["PackageService.csproj", "."]
-RUN dotnet restore "./PackageService.csproj"
+
+# Copy csproj first (better caching)
+COPY ["PackageService/PackageService.csproj", "PackageService/"]
+RUN dotnet restore "PackageService/PackageService.csproj"
+
+# Copy everything
 COPY . .
-WORKDIR "/src/."
-RUN dotnet build "./PackageService.csproj" -c %BUILD_CONFIGURATION% -o /app/build
+
+WORKDIR "/src/PackageService"
+
+RUN dotnet build "PackageService.csproj" -c $BUILD_CONFIGURATION -o /app/build
+
 
 # This stage is used to publish the service project to be copied to the final stage
+# ======================
+# PUBLISH STAGE
+# ======================
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./PackageService.csproj" -c %BUILD_CONFIGURATION% -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./PackageService.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
+# ======================
+# FINAL IMAGE
+# ======================
+#FROM base AS final
+#ARG BUILD_CONFIGURATION=Release
+
+#RUN dotnet publish "./PackageService.csproj" \
+ #   -c $BUILD_CONFIGURATION \
+ #   -o /app/publish \
+ #   /p:UseAppHost=false
+
+# =========================
+# FINAL
+# =========================
+# FINAL IMAGE
 FROM base AS final
 WORKDIR /app
+
 COPY --from=publish /app/publish .
 ENV ASPNETCORE_URLS=http://+:5002
 ENV ASPNETCORE_ENVIRONMENT=Development

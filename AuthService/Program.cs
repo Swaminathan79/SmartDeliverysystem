@@ -163,6 +163,14 @@ builder.Services.AddControllers()
     });
 builder.Services.AddEndpointsApiExplorer();
 
+builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy =>
+                    policy.AllowAnyOrigin()
+                          .AllowAnyHeader()
+                          .AllowAnyMethod());
+            });
+
 // Configure Swagger
 builder.Services.AddSwaggerGen(c =>
 {
@@ -244,8 +252,21 @@ builder.Services.AddScoped<IAuthService, AuthServiceImpl>();
 builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
 
 var app = builder.Build();
+
+app.UseCors();
+
+// Health endpoint for Docker compose healthcheck
+app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }));
 
 app.UseSwagger();
 app.UseSwaggerUI();

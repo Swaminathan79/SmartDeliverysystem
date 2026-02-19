@@ -111,7 +111,20 @@ builder.Services.AddScoped<IRouteService, RouteServiceImpl>();
 
 builder.Services.AddValidatorsFromAssemblyContaining<RouteDtoValidator>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
+
 var app = builder.Build();
+
+app.UseCors();
+// Health endpoint for Docker compose healthcheck
+app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }));
 
 // Initialize database
 using (var scope = app.Services.CreateScope())

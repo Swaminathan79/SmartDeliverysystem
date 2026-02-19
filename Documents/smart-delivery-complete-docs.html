@@ -340,6 +340,9 @@
             <div class="nav-item" onclick="showSection('getting-started')">
                 🚀 Getting Started
             </div>
+			<div class="nav-item" onclick="showSection('docker')">
+                🧪 Docker Deployment
+            </div>
             <div class="nav-item" onclick="showSection('testing')">
                 🧪 Testing
             </div>
@@ -2522,9 +2525,52 @@ Content-Type: application/json
                     <li>RouteService: <a href="http://localhost:5002/swagger">http://localhost:5002/swagger</a></li>
                     <li>PackageService: <a href="http://localhost:5003/swagger">http://localhost:5003/swagger</a></li>
                 </ul>
-                
+            </section>
+			
+			 <!-- DOCKER SECTION -->
+            <section id="docker" class="section">
                 <h3>Docker Deployment</h3>
-                
+				
+				
+                <div class="code-block"># Build and run all services
+				<h4>API Gateway + services </h4>
+				
+				Zero custom swagger endpoints — YARP native aggregation
+				Gateway:
+				https://localhost:5080
+
+				Auth:
+				https://localhost:5081
+
+				Package:
+				https://localhost:5082
+
+				Route:
+				https://localhost:5083
+
+				<h3>Docker Folder Structure(Enterprise)</h3>
+				
+				SolutionRoot
+				│
+				├── docker-compose.yml
+				│
+				├── ApiGateway/
+				│     ├── ApiGateway.csproj
+				│     └── Dockerfile
+				│
+				├── AuthService/
+				│     ├── AuthService.csproj
+				│     └── Dockerfile
+				│
+				├── PackageService/
+				│     ├── PackageService.csproj
+				│     └── Dockerfile
+				│
+				├── RouteService/
+					  ├── RouteService.csproj
+					  └── Dockerfile
+
+				</DIV>
                 <div class="code-block"># Build and run all services
 docker-compose up -d
 

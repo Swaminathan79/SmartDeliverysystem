@@ -6,9 +6,6 @@ using Microsoft.OpenApi.Models;
 using PackageService.Data;
 using PackageService.Repositories;
 using PackageService.Services;
-using RouteService.Data;
-using RouteService.Repositories;
-using RouteService.Services;
 using PackageService.BuildingBlocks.Validators;
 using Serilog;
 using Serilog.Events;
@@ -158,23 +155,32 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         });
     */
 
-builder.Services.AddDbContext<RouteDbContext>(options =>
-    options.UseInMemoryDatabase("RouteDb"));
 builder.Services.AddAuthorization();
 
     // Register application services
 builder.Services.AddScoped<IPackageRepository, PackageRepository>();
 builder.Services.AddScoped<IPackageService, PackageServiceImpl>();
 
-builder.Services.AddScoped<IRouteRepository, RouteRepository>();
-builder.Services.AddScoped<IRouteService, RouteServiceImpl>();
 
 builder.Services.AddScoped<IRouteValidationService, RouteValidationService>();
 
-builder.Services.AddValidatorsFromAssemblyContaining<RouteValidationService>();
+//builder.Services.AddValidatorsFromAssemblyContaining<RouteValidationService>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
 
 
 var app = builder.Build();
+
+app.UseCors();
+
+// Health endpoint for Docker compose healthcheck
+app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }));
 
 // Initialize database
 using (var scope = app.Services.CreateScope())
