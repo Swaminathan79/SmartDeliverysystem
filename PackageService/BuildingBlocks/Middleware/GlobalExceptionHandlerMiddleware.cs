@@ -27,12 +27,6 @@ public class GlobalExceptionHandlerMiddleware
 
         catch (System.Exception ex)
         {
-            // _logger.LogError(ex, ex.Message);
-            _logger.LogError(ex, "Unhandled exception");
-
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            context.Response.ContentType = "application/json";
-
             await HandleExceptionAsync(context, ex);
         }
     }

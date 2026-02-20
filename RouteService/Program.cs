@@ -12,6 +12,7 @@ using RouteService.Services;
 using Serilog;
 using Serilog.Events;
 using System.Text;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +40,7 @@ builder.Host.UseSerilog();
 // Add services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
 
 /*builder.WebHost.ConfigureKestrel(options =>
 {
@@ -102,6 +104,51 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"] ?? 
                     throw new InvalidOperationException("JWT Secret not configured"))
             )
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+
+            OnChallenge = context => //Unauthorized Exception
+            {
+                context.HandleResponse(); // suppress default behavior
+
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/json";
+
+                var result = JsonSerializer.Serialize(new ErrorResponse
+                {
+                    Error = "Unauthorized",
+                    Message = "Bearer token is missing or invalid.",
+                    StatusCode = 401,
+                    Timestamp = DateTime.UtcNow,
+                    Path = context.Request.Path,
+                    Method = context.Request.Method,
+                    TraceId = context.HttpContext.TraceIdentifier
+                });
+
+                return context.Response.WriteAsync(result);
+            },
+
+            OnForbidden = context => //Handle 403 Forbidden
+            {
+                context.Response.StatusCode = 403;
+                context.Response.ContentType = "application/json";
+
+                var result = JsonSerializer.Serialize(new ErrorResponse
+                {
+                    Error = "Forbidden",
+                    Message = "You do not have permission to access this resource.",
+                    StatusCode = 403,
+                    Timestamp = DateTime.UtcNow,
+                    Path = context.Request.Path,
+                    Method = context.Request.Method,
+                    TraceId = context.HttpContext.TraceIdentifier
+                });
+
+                return context.Response.WriteAsync(result);
+            }
+
         };
     });
 

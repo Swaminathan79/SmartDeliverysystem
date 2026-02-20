@@ -1,5 +1,6 @@
 using ApiGateway.Models;
 using ApiGateway.Services;
+using AuthService.BuildingBlocks.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Http;
@@ -11,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Intrinsics.X86;
 using System.Text;
+using System.Text.Json;
 using System.Threading.RateLimiting;
 using System.Threading.Tasks;
 
@@ -173,6 +175,7 @@ namespace ApiGateway
 
                 options.Events = new JwtBearerEvents
                 {
+
                     OnAuthenticationFailed = context =>
                     {
                         var logger = context.HttpContext.RequestServices
@@ -187,7 +190,48 @@ namespace ApiGateway
                         var username = context.Principal?.Identity?.Name;
                         logger.LogDebug("Token validated for user: {Username}", username);
                         return Task.CompletedTask;
+                    },
+
+                    OnChallenge = context => //Unauthorized Exception
+                    {
+                        context.HandleResponse(); // suppress default behavior
+
+                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        context.Response.ContentType = "application/json";
+
+                        var result = JsonSerializer.Serialize(new ErrorResponse
+                        {
+                            Error = "Unauthorized",
+                            Message = "Bearer token is missing or invalid.",
+                            StatusCode = 401,
+                            Timestamp = DateTime.UtcNow,
+                            Path = context.Request.Path,
+                            Method = context.Request.Method,
+                            TraceId = context.HttpContext.TraceIdentifier
+                        });
+
+                        return context.Response.WriteAsync(result);
+                    },
+
+                    OnForbidden = context => //Handle 403 Forbidden
+                    {
+                        context.Response.StatusCode = 403;
+                        context.Response.ContentType = "application/json";
+
+                        var result = JsonSerializer.Serialize(new ErrorResponse
+                        {
+                            Error = "Forbidden",
+                            Message = "You do not have permission to access this resource.",
+                            StatusCode = 403,
+                            Timestamp = DateTime.UtcNow,
+                            Path = context.Request.Path,
+                            Method = context.Request.Method,
+                            TraceId = context.HttpContext.TraceIdentifier
+                        });
+
+                        return context.Response.WriteAsync(result);
                     }
+
                 };
             });
 

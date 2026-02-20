@@ -27,12 +27,6 @@ public class GlobalExceptionHandlerMiddleware
         
         catch (System.Exception ex)
         {
-           // _logger.LogError(ex, ex.Message);
-            _logger.LogError(ex, "Unhandled exception");
-
-            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            context.Response.ContentType = "application/json";
-
             await HandleExceptionAsync(context, ex);
         }
     }
@@ -67,7 +61,7 @@ public class GlobalExceptionHandlerMiddleware
             case UnauthorizedAccessException unauthorizedEx:
                 _logger.LogWarning(unauthorizedEx, "Unauthorized access");
                 errorResponse.Error = "Unauthorized";
-                errorResponse.Message = unauthorizedEx.Message;
+                errorResponse.Message = "Bearer token is missing or invalid. Please click “Authorize” and provide a valid token."; //unauthorizedEx.Message;
                 errorResponse.StatusCode = StatusCodes.Status401Unauthorized;
                 break;
 
@@ -77,7 +71,6 @@ public class GlobalExceptionHandlerMiddleware
                 errorResponse.Message = notFoundEx.Message;
                 errorResponse.StatusCode = StatusCodes.Status404NotFound;
                 break;
-
             case ArgumentException argumentEx:
                 _logger.LogWarning(argumentEx, "Bad request");
                 errorResponse.Error = "Bad Request";

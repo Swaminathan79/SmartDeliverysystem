@@ -20,6 +20,7 @@ using Serilog.Events;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -117,6 +118,68 @@ try
                     new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecretKey)),
                 RoleClaimType = ClaimTypes.Role
             };
+
+            options.Events = new JwtBearerEvents
+            {
+
+                OnAuthenticationFailed = context =>
+                {
+                    var logger = context.HttpContext.RequestServices
+                        .GetRequiredService<ILogger<JwtService>>();
+                    logger.LogWarning("Authentication failed: {Error}", context.Exception.Message);
+                    return Task.CompletedTask;
+                },
+                OnTokenValidated = context =>
+                {
+                    var logger = context.HttpContext.RequestServices
+                        .GetRequiredService<ILogger<JwtService>>();
+                    var username = context.Principal?.Identity?.Name;
+                    logger.LogDebug("Token validated for user: {Username}", username);
+                    return Task.CompletedTask;
+                },
+
+                OnChallenge = context => //Unauthorized Exception
+                {
+                    context.HandleResponse(); // suppress default behavior
+
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    context.Response.ContentType = "application/json";
+
+                    var result = JsonSerializer.Serialize(new ErrorResponse
+                    {
+                        Error = "Unauthorized",
+                        Message = "Bearer token is missing or invalid.",
+                        StatusCode = 401,
+                        Timestamp = DateTime.UtcNow,
+                        Path = context.Request.Path,
+                        Method = context.Request.Method,
+                        TraceId = context.HttpContext.TraceIdentifier
+                    });
+
+                    return context.Response.WriteAsync(result);
+                },
+
+                OnForbidden = context => //Handle 403 Forbidden
+                {
+                    context.Response.StatusCode = 403;
+                    context.Response.ContentType = "application/json";
+
+                    var result = JsonSerializer.Serialize(new ErrorResponse
+                    {
+                        Error = "Forbidden",
+                        Message = "You do not have permission to access this resource.",
+                        StatusCode = 403,
+                        Timestamp = DateTime.UtcNow,
+                        Path = context.Request.Path,
+                        Method = context.Request.Method,
+                        TraceId = context.HttpContext.TraceIdentifier
+                    });
+
+                    return context.Response.WriteAsync(result);
+                }
+
+            };
+
         });
 
     builder.Services.AddAuthorization();
