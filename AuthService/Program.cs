@@ -234,8 +234,8 @@ try
     // ======================================================
     if (app.Environment.IsDevelopment())
     {
-        await DatabaseInitializer.ResetDatabaseAsync(app.Services);
         await DatabaseInitializer.ClearUsersAsync(app.Services);
+        await DatabaseInitializer.ResetDatabaseAsync(app.Services);
     }
 
 

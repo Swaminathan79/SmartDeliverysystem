@@ -11,11 +11,17 @@ using Serilog;
 using Serilog.Events;
 using System.Text;
 using PackageService.BuildingBlocks.Middleware;
+using PackageService.BuildingBlocks.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+// Initialize database
 builder.Services.AddDbContext<PackageDbContext>(options =>
      options.UseInMemoryDatabase("PackageDb"));
+Log.Information("PackageService database initialized");
+
+
 // Configure Serilog
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Debug()
@@ -182,16 +188,6 @@ app.UseCors();
 // Health endpoint for Docker compose healthcheck
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }));
 
-// Initialize database
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<PackageDbContext>();
-    context.Database.EnsureCreated();
-    Log.Information("PackageService database initialized");
-
-    context.Database.EnsureDeleted();   // deletes all data
-    context.Database.EnsureCreated();   // recreate schema
-}
 
 // Configure middleware
 app.UseSerilogRequestLogging(options =>
@@ -201,14 +197,15 @@ app.UseSerilogRequestLogging(options =>
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "PackageService API v1");
-        c.RoutePrefix = "swagger";
-    });
+    await DatabaseInitializer.ClearPackageServiceAsync(app.Services);
+    await DatabaseInitializer.ResetDatabaseAsync(app.Services);
 }
-
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "PackageService API v1");
+    c.RoutePrefix = "swagger";
+});
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 

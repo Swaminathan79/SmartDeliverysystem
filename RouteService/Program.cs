@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RouteService.BuildingBlocks.Infrastructure;
 using RouteService.BuildingBlocks.Middleware;
 using RouteService.BuildingBlocks.Validators;
 using RouteService.Data;
@@ -79,6 +80,7 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+Log.Information("RouteService database initialized");
 // Configure Database
 builder.Services.AddDbContext<RouteDbContext>(options =>
     options.UseInMemoryDatabase("RouteDb"));
@@ -126,16 +128,7 @@ app.UseCors();
 // Health endpoint for Docker compose healthcheck
 app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }));
 
-// Initialize database
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<RouteDbContext>();
-    context.Database.EnsureCreated();
-    Log.Information("RouteService database initialized");
 
-    context.Database.EnsureDeleted();   // deletes all data
-    context.Database.EnsureCreated();   // recreate schema
-}
 
 
 // Configure middleware
@@ -146,14 +139,16 @@ app.UseSerilogRequestLogging(options =>
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "RouteService API v1");
-        c.RoutePrefix = "swagger";
-    });
+    await DatabaseInitializer.ClearRouteAsync(app.Services);
+    await DatabaseInitializer.ResetDatabaseAsync(app.Services);
 }
 
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "RouteService API v1");
+    c.RoutePrefix = "swagger";
+});
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
