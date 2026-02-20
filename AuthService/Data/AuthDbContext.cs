@@ -29,7 +29,7 @@ public class AuthDbContext : DbContext
         });
         
         // Seed initial admin user
-        SeedData(modelBuilder);
+        //SeedData(modelBuilder);
     }
     
     private void SeedData(ModelBuilder modelBuilder)

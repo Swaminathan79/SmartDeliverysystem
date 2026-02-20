@@ -1,44 +1,58 @@
 {
   "info": {
+    "_postman_id": "e3b997d6-f875-457a-b9ba-5044dd4f99f0",
     "name": "Smart Delivery - Package Service",
-    "description": "# Package Service\n\nManages customer packages, statuses, and delivery progress for the Smart Delivery System.\n\n## Features\n- Create, Read, Update, Delete packages\n- Track packages by tracking number\n- Update delivery status\n- Assign packages to routes\n- Record delivery confirmation\n\n## Package Statuses\n| Status | Description |\n|--------|-------------|\n| `pending` | Package created, awaiting pickup |\n| `picked-up` | Package picked up from sender |\n| `in-transit` | Package in transit |\n| `out-for-delivery` | Package out for final delivery |\n| `delivered` | Package delivered successfully |\n| `failed` | Delivery attempt failed |\n| `returned` | Package returned to sender |\n\n## Priority Levels\n- `low` - Standard delivery (3-5 days)\n- `medium` - Express delivery (1-2 days)\n- `high` - Priority delivery (same day)\n\n## Base URL\n- Direct: `http://localhost:3003`\n- Via Gateway: `http://localhost:3000/api/packages`",
+    "description": "# Package Service\n\nManages customer packages, statuses, and delivery progress for the Smart Delivery System.\n\n## Features\n\n- Create, Read, Update, Delete packages\n    \n- Track packages by tracking number\n    \n- Update delivery status\n    \n- Assign packages to routes\n    \n- Record delivery confirmation\n    \n\n## Package Statuses\n\n| Status | Description |\n| --- | --- |\n| `pending` | Package created, awaiting pickup |\n| `picked-up` | Package picked up from sender |\n| `in-transit` | Package in transit |\n| `out-for-delivery` | Package out for final delivery |\n| `delivered` | Package delivered successfully |\n| `failed` | Delivery attempt failed |\n| `returned` | Package returned to sender |\n\n## Priority Levels\n\n- `low` - Standard delivery (3-5 days)\n    \n- `medium` - Express delivery (1-2 days)\n    \n- `high` - Priority delivery (same day)\n    \n\n## Base URL\n\n- Direct: `http://localhost:3003`\n    \n- Via Gateway: `http://localhost:3000/api/packages`",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
-  "variable": [
-    {
-      "key": "packageUrl",
-      "value": "{{packageServiceUrl}}",
-      "type": "string"
-    }
-  ],
   "item": [
     {
       "name": "Health Check",
       "item": [
         {
           "name": "Service Health",
+          "id": "a2e16b21-639e-467c-9655-f4261f475e99",
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{packageUrl}}/health",
+            "url": {
+              "raw": "{{packageUrl}}/health",
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
             "description": "Check Package Service health status."
           },
           "response": [
             {
+              "id": "7be358e6-0b61-45b3-b1b8-30beb0b0be87",
               "name": "Healthy",
               "originalRequest": {
                 "method": "GET",
                 "header": [],
-                "url": "{{packageUrl}}/health"
+                "url": {
+                  "raw": "{{packageUrl}}/health",
+                  "host": [
+                    "{{packageUrl}}"
+                  ],
+                  "path": [
+                    "health"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
+              "cookie": [],
               "body": "{\n  \"success\": true,\n  \"service\": \"package-service\",\n  \"status\": \"healthy\",\n  \"timestamp\": \"2024-01-15T10:30:00.000Z\"\n}"
             }
           ]
         }
-      ]
+      ],
+      "id": "1d85e319-4ec0-4154-8959-b553f3f3feed"
     },
     {
       "name": "Packages CRUD",
@@ -67,10 +81,12 @@
                   "    console.log('Package ID saved:', response.data.package.id);",
                   "    console.log('Tracking Number saved:', response.data.package.trackingNumber);",
                   "}"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
+          "id": "887beaa0-b6a7-40b3-a677-f2066a4e87fc",
           "request": {
             "method": "POST",
             "header": [
@@ -87,11 +103,21 @@
               "mode": "raw",
               "raw": "{\n  \"senderName\": \"TechCorp Inc.\",\n  \"senderAddress\": \"100 Tech Park, San Francisco, CA 94102\",\n  \"senderPhone\": \"+1-555-100-1000\",\n  \"senderEmail\": \"shipping@techcorp.com\",\n  \"recipientName\": \"John Smith\",\n  \"recipientAddress\": \"456 Oak Street, Apt 12, San Francisco, CA 94103\",\n  \"recipientPhone\": \"+1-555-200-2000\",\n  \"recipientEmail\": \"john.smith@email.com\",\n  \"weight\": 2.5,\n  \"dimensions\": {\n    \"length\": 30,\n    \"width\": 20,\n    \"height\": 15\n  },\n  \"description\": \"Laptop Computer - Fragile Electronics\",\n  \"priority\": \"high\",\n  \"specialInstructions\": \"Handle with care. Signature required. Do not leave at door.\",\n  \"declaredValue\": 1500.00,\n  \"insurance\": true\n}"
             },
-            "url": "{{packageUrl}}/api/packages",
+            "url": {
+              "raw": "{{packageUrl}}/api/packages",
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "api",
+                "packages"
+              ]
+            },
             "description": "Create a new package for delivery.\n\n**Required Role:** Admin, Manager"
           },
           "response": [
             {
+              "id": "9f3ba7be-3bee-4e40-8b63-54b7ac2c8380",
               "name": "Package Created",
               "originalRequest": {
                 "method": "POST",
@@ -109,11 +135,21 @@
                   "mode": "raw",
                   "raw": "{\n  \"senderName\": \"TechCorp Inc.\",\n  \"senderAddress\": \"100 Tech Park, San Francisco, CA 94102\",\n  \"senderPhone\": \"+1-555-100-1000\",\n  \"recipientName\": \"John Smith\",\n  \"recipientAddress\": \"456 Oak Street, San Francisco, CA 94103\",\n  \"recipientPhone\": \"+1-555-200-2000\",\n  \"weight\": 2.5,\n  \"description\": \"Laptop Computer\",\n  \"priority\": \"high\"\n}"
                 },
-                "url": "{{packageUrl}}/api/packages"
+                "url": {
+                  "raw": "{{packageUrl}}/api/packages",
+                  "host": [
+                    "{{packageUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "packages"
+                  ]
+                }
               },
               "status": "Created",
               "code": 201,
               "_postman_previewlanguage": "json",
+              "cookie": [],
               "body": "{\n  \"success\": true,\n  \"message\": \"Package created successfully\",\n  \"data\": {\n    \"package\": {\n      \"id\": \"770e8400-e29b-41d4-a716-446655440000\",\n      \"trackingNumber\": \"SD-2024-ABC123XYZ\",\n      \"senderName\": \"TechCorp Inc.\",\n      \"senderAddress\": \"100 Tech Park, San Francisco, CA 94102\",\n      \"recipientName\": \"John Smith\",\n      \"recipientAddress\": \"456 Oak Street, San Francisco, CA 94103\",\n      \"weight\": 2.5,\n      \"description\": \"Laptop Computer\",\n      \"priority\": \"high\",\n      \"status\": \"pending\",\n      \"createdAt\": \"2024-01-15T10:30:00.000Z\"\n    }\n  }\n}"
             }
           ]
@@ -133,10 +169,12 @@
                   "    const response = pm.response.json();",
                   "    pm.expect(response.data.packages).to.be.an('array');",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
+          "id": "d0e7f8c9-c315-4afd-aeb4-6aa92d8868e9",
           "request": {
             "method": "GET",
             "header": [
@@ -145,11 +183,21 @@
                 "value": "Bearer {{token}}"
               }
             ],
-            "url": "{{packageUrl}}/api/packages",
+            "url": {
+              "raw": "{{packageUrl}}/api/packages",
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "api",
+                "packages"
+              ]
+            },
             "description": "Get all packages in the system."
           },
           "response": [
             {
+              "id": "b9b2d3f9-536e-436c-979e-ac05be2a6bcb",
               "name": "Packages List",
               "originalRequest": {
                 "method": "GET",
@@ -159,11 +207,21 @@
                     "value": "Bearer {{token}}"
                   }
                 ],
-                "url": "{{packageUrl}}/api/packages"
+                "url": {
+                  "raw": "{{packageUrl}}/api/packages",
+                  "host": [
+                    "{{packageUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "packages"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
+              "cookie": [],
               "body": "{\n  \"success\": true,\n  \"count\": 3,\n  \"data\": {\n    \"packages\": [\n      {\n        \"id\": \"770e8400-e29b-41d4-a716-446655440000\",\n        \"trackingNumber\": \"SD-2024-ABC123XYZ\",\n        \"recipientName\": \"John Smith\",\n        \"status\": \"in-transit\",\n        \"priority\": \"high\"\n      },\n      {\n        \"id\": \"770e8400-e29b-41d4-a716-446655440001\",\n        \"trackingNumber\": \"SD-2024-DEF456UVW\",\n        \"recipientName\": \"Jane Doe\",\n        \"status\": \"pending\",\n        \"priority\": \"medium\"\n      }\n    ]\n  }\n}"
             }
           ]
@@ -184,10 +242,12 @@
                   "    pm.expect(response.data.package).to.have.property('id');",
                   "    pm.expect(response.data.package).to.have.property('trackingNumber');",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
+          "id": "037278f5-a033-4775-88b7-59b42c0bd8df",
           "request": {
             "method": "GET",
             "header": [
@@ -196,11 +256,22 @@
                 "value": "Bearer {{token}}"
               }
             ],
-            "url": "{{packageUrl}}/api/packages/{{packageId}}",
+            "url": {
+              "raw": "{{packageUrl}}/api/packages/{{packageId}}",
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "api",
+                "packages",
+                "{{packageId}}"
+              ]
+            },
             "description": "Get a specific package by ID."
           },
           "response": [
             {
+              "id": "2add0d7f-64de-4959-bc8f-7862b0d381c2",
               "name": "Package Details",
               "originalRequest": {
                 "method": "GET",
@@ -210,14 +281,26 @@
                     "value": "Bearer {{token}}"
                   }
                 ],
-                "url": "{{packageUrl}}/api/packages/{{packageId}}"
+                "url": {
+                  "raw": "{{packageUrl}}/api/packages/{{packageId}}",
+                  "host": [
+                    "{{packageUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "packages",
+                    "{{packageId}}"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
+              "cookie": [],
               "body": "{\n  \"success\": true,\n  \"data\": {\n    \"package\": {\n      \"id\": \"770e8400-e29b-41d4-a716-446655440000\",\n      \"trackingNumber\": \"SD-2024-ABC123XYZ\",\n      \"senderName\": \"TechCorp Inc.\",\n      \"senderAddress\": \"100 Tech Park, San Francisco, CA 94102\",\n      \"senderPhone\": \"+1-555-100-1000\",\n      \"recipientName\": \"John Smith\",\n      \"recipientAddress\": \"456 Oak Street, San Francisco, CA 94103\",\n      \"recipientPhone\": \"+1-555-200-2000\",\n      \"weight\": 2.5,\n      \"dimensions\": {\n        \"length\": 30,\n        \"width\": 20,\n        \"height\": 15\n      },\n      \"description\": \"Laptop Computer\",\n      \"priority\": \"high\",\n      \"status\": \"in-transit\",\n      \"routeId\": \"660e8400-e29b-41d4-a716-446655440000\",\n      \"statusHistory\": [\n        {\n          \"status\": \"pending\",\n          \"timestamp\": \"2024-01-15T10:30:00.000Z\",\n          \"notes\": \"Package created\"\n        },\n        {\n          \"status\": \"picked-up\",\n          \"timestamp\": \"2024-01-15T11:00:00.000Z\",\n          \"notes\": \"Package picked up from sender\"\n        },\n        {\n          \"status\": \"in-transit\",\n          \"timestamp\": \"2024-01-15T12:00:00.000Z\",\n          \"notes\": \"Package in transit to destination\"\n        }\n      ],\n      \"createdAt\": \"2024-01-15T10:30:00.000Z\"\n    }\n  }\n}"
             },
             {
+              "id": "862b106c-a264-46dc-8f86-2f5eec419a0a",
               "name": "Package Not Found",
               "originalRequest": {
                 "method": "GET",
@@ -227,11 +310,22 @@
                     "value": "Bearer {{token}}"
                   }
                 ],
-                "url": "{{packageUrl}}/api/packages/invalid-id"
+                "url": {
+                  "raw": "{{packageUrl}}/api/packages/invalid-id",
+                  "host": [
+                    "{{packageUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "packages",
+                    "invalid-id"
+                  ]
+                }
               },
               "status": "Not Found",
               "code": 404,
               "_postman_previewlanguage": "json",
+              "cookie": [],
               "body": "{\n  \"success\": false,\n  \"message\": \"Package not found\"\n}"
             }
           ]
@@ -246,10 +340,12 @@
                   "pm.test('Packages filtered by status', function() {",
                   "    pm.response.to.have.status(200);",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
+          "id": "2997dc95-f208-4556-899a-f315adaaa892",
           "request": {
             "method": "GET",
             "header": [
@@ -260,8 +356,13 @@
             ],
             "url": {
               "raw": "{{packageUrl}}/api/packages?status=in-transit",
-              "host": ["{{packageUrl}}"],
-              "path": ["api", "packages"],
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "api",
+                "packages"
+              ],
               "query": [
                 {
                   "key": "status",
@@ -284,10 +385,12 @@
                   "pm.test('Packages filtered by priority', function() {",
                   "    pm.response.to.have.status(200);",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
+          "id": "0e84d515-4c9a-438e-8cca-ca686cc5b7d7",
           "request": {
             "method": "GET",
             "header": [
@@ -298,8 +401,13 @@
             ],
             "url": {
               "raw": "{{packageUrl}}/api/packages?priority=high",
-              "host": ["{{packageUrl}}"],
-              "path": ["api", "packages"],
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "api",
+                "packages"
+              ],
               "query": [
                 {
                   "key": "priority",
@@ -322,10 +430,12 @@
                   "pm.test('Package updated', function() {",
                   "    pm.response.to.have.status(200);",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
+          "id": "25fad38f-c6e3-4e99-afb6-fd099b70ba1e",
           "request": {
             "method": "PUT",
             "header": [
@@ -342,11 +452,22 @@
               "mode": "raw",
               "raw": "{\n  \"recipientAddress\": \"789 New Address, San Francisco, CA 94104\",\n  \"specialInstructions\": \"Updated: Leave with building concierge\",\n  \"priority\": \"medium\"\n}"
             },
-            "url": "{{packageUrl}}/api/packages/{{packageId}}",
+            "url": {
+              "raw": "{{packageUrl}}/api/packages/{{packageId}}",
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "api",
+                "packages",
+                "{{packageId}}"
+              ]
+            },
             "description": "Update package information.\n\n**Required Role:** Admin, Manager"
           },
           "response": [
             {
+              "id": "ba7650fc-d08e-47c2-b6b5-72b52866e9db",
               "name": "Package Updated",
               "originalRequest": {
                 "method": "PUT",
@@ -364,11 +485,22 @@
                   "mode": "raw",
                   "raw": "{\n  \"recipientAddress\": \"789 New Address, San Francisco, CA 94104\",\n  \"specialInstructions\": \"Updated: Leave with building concierge\"\n}"
                 },
-                "url": "{{packageUrl}}/api/packages/{{packageId}}"
+                "url": {
+                  "raw": "{{packageUrl}}/api/packages/{{packageId}}",
+                  "host": [
+                    "{{packageUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "packages",
+                    "{{packageId}}"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
+              "cookie": [],
               "body": "{\n  \"success\": true,\n  \"message\": \"Package updated successfully\",\n  \"data\": {\n    \"package\": {\n      \"id\": \"770e8400-e29b-41d4-a716-446655440000\",\n      \"trackingNumber\": \"SD-2024-ABC123XYZ\",\n      \"recipientAddress\": \"789 New Address, San Francisco, CA 94104\",\n      \"specialInstructions\": \"Updated: Leave with building concierge\",\n      \"updatedAt\": \"2024-01-15T11:00:00.000Z\"\n    }\n  }\n}"
             }
           ]
@@ -383,10 +515,12 @@
                   "pm.test('Package deleted', function() {",
                   "    pm.response.to.have.status(200);",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
+          "id": "7c8e2bbb-c28d-46e6-9e8f-e8ef5d3699cf",
           "request": {
             "method": "DELETE",
             "header": [
@@ -395,11 +529,22 @@
                 "value": "Bearer {{token}}"
               }
             ],
-            "url": "{{packageUrl}}/api/packages/{{packageId}}",
+            "url": {
+              "raw": "{{packageUrl}}/api/packages/{{packageId}}",
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "api",
+                "packages",
+                "{{packageId}}"
+              ]
+            },
             "description": "Delete a package.\n\n**Required Role:** Admin only"
           },
           "response": [
             {
+              "id": "ee1afa00-f6fd-486a-8a9e-78b61f85a577",
               "name": "Package Deleted",
               "originalRequest": {
                 "method": "DELETE",
@@ -409,16 +554,28 @@
                     "value": "Bearer {{adminToken}}"
                   }
                 ],
-                "url": "{{packageUrl}}/api/packages/{{packageId}}"
+                "url": {
+                  "raw": "{{packageUrl}}/api/packages/{{packageId}}",
+                  "host": [
+                    "{{packageUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "packages",
+                    "{{packageId}}"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
+              "cookie": [],
               "body": "{\n  \"success\": true,\n  \"message\": \"Package deleted successfully\"\n}"
             }
           ]
         }
-      ]
+      ],
+      "id": "047edb03-048d-48ab-bc06-a8aa2c7c89c7"
     },
     {
       "name": "Package Tracking",
@@ -440,44 +597,84 @@
                   "    pm.expect(response.data).to.have.property('status');",
                   "    pm.expect(response.data).to.have.property('statusHistory');",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
+          "id": "906ace43-a507-4719-b887-8be6c019855e",
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{packageUrl}}/api/packages/track/{{trackingNumber}}",
+            "url": {
+              "raw": "{{packageUrl}}/api/packages/track/{{trackingNumber}}",
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "api",
+                "packages",
+                "track",
+                "{{trackingNumber}}"
+              ]
+            },
             "description": "Track a package using its tracking number.\n\n**Note:** This endpoint is public and does not require authentication."
           },
           "response": [
             {
+              "id": "80576b02-4371-406c-869d-ac0ffcdbbd96",
               "name": "Tracking Info",
               "originalRequest": {
                 "method": "GET",
                 "header": [],
-                "url": "{{packageUrl}}/api/packages/track/SD-2024-ABC123XYZ"
+                "url": {
+                  "raw": "{{packageUrl}}/api/packages/track/SD-2024-ABC123XYZ",
+                  "host": [
+                    "{{packageUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "packages",
+                    "track",
+                    "SD-2024-ABC123XYZ"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
+              "cookie": [],
               "body": "{\n  \"success\": true,\n  \"data\": {\n    \"trackingNumber\": \"SD-2024-ABC123XYZ\",\n    \"status\": \"in-transit\",\n    \"estimatedDelivery\": \"2024-01-16T14:00:00.000Z\",\n    \"recipientName\": \"John S.\",\n    \"recipientCity\": \"San Francisco, CA\",\n    \"statusHistory\": [\n      {\n        \"status\": \"pending\",\n        \"timestamp\": \"2024-01-15T10:30:00.000Z\",\n        \"location\": \"San Francisco, CA\",\n        \"description\": \"Package created\"\n      },\n      {\n        \"status\": \"picked-up\",\n        \"timestamp\": \"2024-01-15T11:00:00.000Z\",\n        \"location\": \"San Francisco, CA\",\n        \"description\": \"Package picked up from sender\"\n      },\n      {\n        \"status\": \"in-transit\",\n        \"timestamp\": \"2024-01-15T12:00:00.000Z\",\n        \"location\": \"Distribution Center\",\n        \"description\": \"Package in transit to destination\"\n      }\n    ]\n  }\n}"
             },
             {
+              "id": "c92126ca-16a7-4c59-9a6a-f19a5e05480c",
               "name": "Invalid Tracking Number",
               "originalRequest": {
                 "method": "GET",
                 "header": [],
-                "url": "{{packageUrl}}/api/packages/track/INVALID-TRACKING"
+                "url": {
+                  "raw": "{{packageUrl}}/api/packages/track/INVALID-TRACKING",
+                  "host": [
+                    "{{packageUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "packages",
+                    "track",
+                    "INVALID-TRACKING"
+                  ]
+                }
               },
               "status": "Not Found",
               "code": 404,
               "_postman_previewlanguage": "json",
+              "cookie": [],
               "body": "{\n  \"success\": false,\n  \"message\": \"Package not found with tracking number: INVALID-TRACKING\"\n}"
             }
           ]
         }
-      ]
+      ],
+      "id": "b91ecc0a-2118-4ac8-a12e-16d01b762594"
     },
     {
       "name": "Status Management",
@@ -492,10 +689,12 @@
                   "pm.test('Status updated', function() {",
                   "    pm.response.to.have.status(200);",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
+          "id": "b732e61c-22ea-46fd-b651-5bbd947170f4",
           "request": {
             "method": "PUT",
             "header": [
@@ -512,11 +711,23 @@
               "mode": "raw",
               "raw": "{\n  \"status\": \"in-transit\",\n  \"location\": \"Distribution Center A\",\n  \"notes\": \"Package sorted and loaded for delivery\"\n}"
             },
-            "url": "{{packageUrl}}/api/packages/{{packageId}}/status",
+            "url": {
+              "raw": "{{packageUrl}}/api/packages/{{packageId}}/status",
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "api",
+                "packages",
+                "{{packageId}}",
+                "status"
+              ]
+            },
             "description": "Update the status of a package.\n\n**Required Role:** Admin, Manager, Driver"
           },
           "response": [
             {
+              "id": "b7804448-7e33-405c-8884-bc674d5444f0",
               "name": "Status Updated",
               "originalRequest": {
                 "method": "PUT",
@@ -534,11 +745,23 @@
                   "mode": "raw",
                   "raw": "{\n  \"status\": \"in-transit\",\n  \"location\": \"Distribution Center A\",\n  \"notes\": \"Package sorted and loaded for delivery\"\n}"
                 },
-                "url": "{{packageUrl}}/api/packages/{{packageId}}/status"
+                "url": {
+                  "raw": "{{packageUrl}}/api/packages/{{packageId}}/status",
+                  "host": [
+                    "{{packageUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "packages",
+                    "{{packageId}}",
+                    "status"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
+              "cookie": [],
               "body": "{\n  \"success\": true,\n  \"message\": \"Package status updated successfully\",\n  \"data\": {\n    \"package\": {\n      \"id\": \"770e8400-e29b-41d4-a716-446655440000\",\n      \"trackingNumber\": \"SD-2024-ABC123XYZ\",\n      \"status\": \"in-transit\",\n      \"lastUpdate\": {\n        \"status\": \"in-transit\",\n        \"location\": \"Distribution Center A\",\n        \"notes\": \"Package sorted and loaded for delivery\",\n        \"timestamp\": \"2024-01-15T12:00:00.000Z\",\n        \"updatedBy\": \"550e8400-e29b-41d4-a716-446655440001\"\n      }\n    }\n  }\n}"
             }
           ]
@@ -553,10 +776,12 @@
                   "pm.test('Package out for delivery', function() {",
                   "    pm.response.to.have.status(200);",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
+          "id": "ed3a606c-79f7-4fd5-a272-c57aeae60e92",
           "request": {
             "method": "PUT",
             "header": [
@@ -573,7 +798,18 @@
               "mode": "raw",
               "raw": "{\n  \"estimatedDeliveryTime\": \"14:30\",\n  \"driverNotes\": \"Will attempt delivery between 2-3 PM\"\n}"
             },
-            "url": "{{packageUrl}}/api/packages/{{packageId}}/out-for-delivery",
+            "url": {
+              "raw": "{{packageUrl}}/api/packages/{{packageId}}/out-for-delivery",
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "api",
+                "packages",
+                "{{packageId}}",
+                "out-for-delivery"
+              ]
+            },
             "description": "Mark package as out for delivery.\n\n**Required Role:** Driver"
           },
           "response": []
@@ -588,10 +824,12 @@
                   "pm.test('Package delivered', function() {",
                   "    pm.response.to.have.status(200);",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
+          "id": "e96cea3a-96d4-47cc-bf4e-72301c166040",
           "request": {
             "method": "PUT",
             "header": [
@@ -608,11 +846,23 @@
               "mode": "raw",
               "raw": "{\n  \"signature\": \"John Smith\",\n  \"deliveryNotes\": \"Delivered to front door. Signed by recipient.\",\n  \"deliveryPhoto\": \"base64-encoded-image-data\",\n  \"deliveryLocation\": {\n    \"lat\": 37.7749,\n    \"lng\": -122.4194\n  }\n}"
             },
-            "url": "{{packageUrl}}/api/packages/{{packageId}}/deliver",
+            "url": {
+              "raw": "{{packageUrl}}/api/packages/{{packageId}}/deliver",
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "api",
+                "packages",
+                "{{packageId}}",
+                "deliver"
+              ]
+            },
             "description": "Mark package as delivered with proof of delivery.\n\n**Required Role:** Driver"
           },
           "response": [
             {
+              "id": "395491da-a5ef-4c82-b7ad-07074feb4847",
               "name": "Package Delivered",
               "originalRequest": {
                 "method": "PUT",
@@ -630,11 +880,23 @@
                   "mode": "raw",
                   "raw": "{\n  \"signature\": \"John Smith\",\n  \"deliveryNotes\": \"Delivered to front door. Signed by recipient.\"\n}"
                 },
-                "url": "{{packageUrl}}/api/packages/{{packageId}}/deliver"
+                "url": {
+                  "raw": "{{packageUrl}}/api/packages/{{packageId}}/deliver",
+                  "host": [
+                    "{{packageUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "packages",
+                    "{{packageId}}",
+                    "deliver"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
+              "cookie": [],
               "body": "{\n  \"success\": true,\n  \"message\": \"Package marked as delivered\",\n  \"data\": {\n    \"package\": {\n      \"id\": \"770e8400-e29b-41d4-a716-446655440000\",\n      \"trackingNumber\": \"SD-2024-ABC123XYZ\",\n      \"status\": \"delivered\",\n      \"deliveredAt\": \"2024-01-15T14:30:00.000Z\",\n      \"deliveryProof\": {\n        \"signature\": \"John Smith\",\n        \"notes\": \"Delivered to front door. Signed by recipient.\",\n        \"deliveredBy\": \"550e8400-e29b-41d4-a716-446655440001\"\n      }\n    }\n  }\n}"
             }
           ]
@@ -649,10 +911,12 @@
                   "pm.test('Delivery marked as failed', function() {",
                   "    pm.response.to.have.status(200);",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
+          "id": "4cd4f336-048d-4a9b-8ec9-bb180a15e488",
           "request": {
             "method": "PUT",
             "header": [
@@ -669,12 +933,24 @@
               "mode": "raw",
               "raw": "{\n  \"failureReason\": \"recipient_not_available\",\n  \"notes\": \"No one home. Left delivery notice.\",\n  \"attemptNumber\": 1,\n  \"nextAttemptDate\": \"2024-01-16\"\n}"
             },
-            "url": "{{packageUrl}}/api/packages/{{packageId}}/failed",
+            "url": {
+              "raw": "{{packageUrl}}/api/packages/{{packageId}}/failed",
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "api",
+                "packages",
+                "{{packageId}}",
+                "failed"
+              ]
+            },
             "description": "Mark delivery attempt as failed.\n\n**Required Role:** Driver"
           },
           "response": []
         }
-      ]
+      ],
+      "id": "0ca1549c-09bb-4a4c-aef3-bd3cc774f42b"
     },
     {
       "name": "Route Assignment",
@@ -689,10 +965,12 @@
                   "pm.test('Package assigned to route', function() {",
                   "    pm.response.to.have.status(200);",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
+          "id": "47d53869-6f97-4bcf-82ec-6f0d7a0ee11a",
           "request": {
             "method": "PUT",
             "header": [
@@ -709,11 +987,23 @@
               "mode": "raw",
               "raw": "{\n  \"routeId\": \"{{routeId}}\",\n  \"stopSequence\": 2\n}"
             },
-            "url": "{{packageUrl}}/api/packages/{{packageId}}/assign-route",
+            "url": {
+              "raw": "{{packageUrl}}/api/packages/{{packageId}}/assign-route",
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "api",
+                "packages",
+                "{{packageId}}",
+                "assign-route"
+              ]
+            },
             "description": "Assign a package to a delivery route.\n\n**Required Role:** Admin, Manager"
           },
           "response": [
             {
+              "id": "9bf302b0-333d-4f87-b8ff-2ee156dd00d8",
               "name": "Package Assigned to Route",
               "originalRequest": {
                 "method": "PUT",
@@ -731,11 +1021,23 @@
                   "mode": "raw",
                   "raw": "{\n  \"routeId\": \"660e8400-e29b-41d4-a716-446655440000\",\n  \"stopSequence\": 2\n}"
                 },
-                "url": "{{packageUrl}}/api/packages/{{packageId}}/assign-route"
+                "url": {
+                  "raw": "{{packageUrl}}/api/packages/{{packageId}}/assign-route",
+                  "host": [
+                    "{{packageUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "packages",
+                    "{{packageId}}",
+                    "assign-route"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
+              "cookie": [],
               "body": "{\n  \"success\": true,\n  \"message\": \"Package assigned to route successfully\",\n  \"data\": {\n    \"package\": {\n      \"id\": \"770e8400-e29b-41d4-a716-446655440000\",\n      \"trackingNumber\": \"SD-2024-ABC123XYZ\",\n      \"routeId\": \"660e8400-e29b-41d4-a716-446655440000\",\n      \"stopSequence\": 2\n    }\n  }\n}"
             }
           ]
@@ -750,10 +1052,12 @@
                   "pm.test('Packages by route retrieved', function() {",
                   "    pm.response.to.have.status(200);",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
+          "id": "16e09248-f3a9-4810-99e3-608da28e0db5",
           "request": {
             "method": "GET",
             "header": [
@@ -762,11 +1066,23 @@
                 "value": "Bearer {{token}}"
               }
             ],
-            "url": "{{packageUrl}}/api/packages/route/{{routeId}}",
+            "url": {
+              "raw": "{{packageUrl}}/api/packages/route/{{routeId}}",
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "api",
+                "packages",
+                "route",
+                "{{routeId}}"
+              ]
+            },
             "description": "Get all packages assigned to a specific route."
           },
           "response": [
             {
+              "id": "1ee865c8-5734-4b2f-8526-22c6b90e677f",
               "name": "Packages on Route",
               "originalRequest": {
                 "method": "GET",
@@ -776,11 +1092,23 @@
                     "value": "Bearer {{token}}"
                   }
                 ],
-                "url": "{{packageUrl}}/api/packages/route/{{routeId}}"
+                "url": {
+                  "raw": "{{packageUrl}}/api/packages/route/{{routeId}}",
+                  "host": [
+                    "{{packageUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "packages",
+                    "route",
+                    "{{routeId}}"
+                  ]
+                }
               },
               "status": "OK",
               "code": 200,
               "_postman_previewlanguage": "json",
+              "cookie": [],
               "body": "{\n  \"success\": true,\n  \"count\": 3,\n  \"data\": {\n    \"routeId\": \"660e8400-e29b-41d4-a716-446655440000\",\n    \"packages\": [\n      {\n        \"id\": \"770e8400-e29b-41d4-a716-446655440000\",\n        \"trackingNumber\": \"SD-2024-ABC123XYZ\",\n        \"recipientName\": \"John Smith\",\n        \"recipientAddress\": \"456 Oak Street, San Francisco, CA 94103\",\n        \"stopSequence\": 1,\n        \"status\": \"in-transit\"\n      },\n      {\n        \"id\": \"770e8400-e29b-41d4-a716-446655440001\",\n        \"trackingNumber\": \"SD-2024-DEF456UVW\",\n        \"recipientName\": \"Jane Doe\",\n        \"recipientAddress\": \"789 Pine Street, San Francisco, CA 94104\",\n        \"stopSequence\": 2,\n        \"status\": \"in-transit\"\n      }\n    ]\n  }\n}"
             }
           ]
@@ -795,10 +1123,12 @@
                   "pm.test('Package unassigned from route', function() {",
                   "    pm.response.to.have.status(200);",
                   "});"
-                ]
+                ],
+                "type": "text/javascript"
               }
             }
           ],
+          "id": "7fbf7403-4fb0-4027-98b3-924992e6e79d",
           "request": {
             "method": "PUT",
             "header": [
@@ -807,12 +1137,32 @@
                 "value": "Bearer {{token}}"
               }
             ],
-            "url": "{{packageUrl}}/api/packages/{{packageId}}/unassign-route",
+            "url": {
+              "raw": "{{packageUrl}}/api/packages/{{packageId}}/unassign-route",
+              "host": [
+                "{{packageUrl}}"
+              ],
+              "path": [
+                "api",
+                "packages",
+                "{{packageId}}",
+                "unassign-route"
+              ]
+            },
             "description": "Remove package from its assigned route.\n\n**Required Role:** Admin, Manager"
           },
           "response": []
         }
-      ]
+      ],
+      "id": "d1bc3ca9-a522-473f-b5d6-0a3e61e4aa9b"
+    }
+  ],
+  "variable": [
+    {
+      "id": "16b53f3e-1dc9-47f8-a250-b6f5f3e051c0",
+      "key": "packageUrl",
+      "value": "{{packageServiceUrl}}",
+      "type": "string"
     }
   ]
 }

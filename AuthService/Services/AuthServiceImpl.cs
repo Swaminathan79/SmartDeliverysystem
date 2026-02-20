@@ -1,3 +1,4 @@
+using System.Diagnostics.Eventing.Reader;
 using System.Text.RegularExpressions;
 using AuthService.BuildingBlocks.Common;
 using AuthService.Data;
@@ -63,14 +64,20 @@ public class AuthServiceImpl : IAuthService
                 "Password must be at least 8 characters with uppercase, lowercase, number, and special character"
             );
         }
-        // BUSINESS RULE: username uniqueness
-        if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
-            throw new ValidationException("Username already exists");
+      
+        var count = await _context.Users.CountAsync();
+        {
+            _logger.LogWarning("🔥 CURRENT USER COUNT: {Count}", count);
 
-        // BUSINESS RULE: email uniqueness
-        if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
-            throw new ValidationException("Email already exists");
+            // BUSINESS RULE: username uniqueness
+            if (await _context.Users.AnyAsync(u => u.Username == dto.Username))
+                throw new ValidationException("Username already exists");
 
+            // BUSINESS RULE: email uniqueness
+            if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
+                throw new ValidationException("Email already exists");
+        }
+        
         var user = new User
         {
             Username = dto.Username,

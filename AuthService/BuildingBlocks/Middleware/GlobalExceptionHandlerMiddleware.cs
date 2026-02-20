@@ -24,9 +24,14 @@ public class GlobalExceptionHandlerMiddleware
         {
             await _next(context);
         }
+        
         catch (System.Exception ex)
         {
-            _logger.LogError(ex, ex.Message);
+           // _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Unhandled exception");
+
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            context.Response.ContentType = "application/json";
 
             await HandleExceptionAsync(context, ex);
         }
@@ -38,7 +43,8 @@ public class GlobalExceptionHandlerMiddleware
         {
             Timestamp = DateTime.UtcNow,
             Path = context.Request.Path,
-            Method = context.Request.Method
+            Method = context.Request.Method,
+            TraceId = context.TraceIdentifier
         };
 
         switch (exception)
@@ -51,38 +57,39 @@ public class GlobalExceptionHandlerMiddleware
                 break;
 
             case ValidationException validationEx:
-                _logger.LogWarning(validationEx, "Validation error");
+                _logger.LogWarning(validationEx, "Validation error occurred");
                 errorResponse.Error = "Validation Error";
                 errorResponse.Message = validationEx.Message;
-                errorResponse.StatusCode = 400;
+                errorResponse.StatusCode = StatusCodes.Status409Conflict;
+                ;
                 break;
 
             case UnauthorizedAccessException unauthorizedEx:
                 _logger.LogWarning(unauthorizedEx, "Unauthorized access");
                 errorResponse.Error = "Unauthorized";
                 errorResponse.Message = unauthorizedEx.Message;
-                errorResponse.StatusCode = 401;
+                errorResponse.StatusCode = StatusCodes.Status401Unauthorized;
                 break;
 
             case NotFoundException notFoundEx:
                 _logger.LogInformation(notFoundEx, "Resource not found");
                 errorResponse.Error = "Not Found";
                 errorResponse.Message = notFoundEx.Message;
-                errorResponse.StatusCode = 404;
+                errorResponse.StatusCode = StatusCodes.Status404NotFound;
                 break;
 
             case ArgumentException argumentEx:
                 _logger.LogWarning(argumentEx, "Bad request");
                 errorResponse.Error = "Bad Request";
                 errorResponse.Message = argumentEx.Message;
-                errorResponse.StatusCode = 400;
+                errorResponse.StatusCode = StatusCodes.Status400BadRequest;
                 break;
 
             default:
                 _logger.LogError(exception, "Unhandled exception");
                 errorResponse.Error = "Internal Server Error";
                 errorResponse.Message = "An unexpected error occurred";
-                errorResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
+                errorResponse.StatusCode = StatusCodes.Status500InternalServerError;
                 break;
         }
 
@@ -109,4 +116,6 @@ public class ErrorResponse
     public DateTime Timestamp { get; set; }
     public string Path { get; set; } = string.Empty;
     public string Method { get; set; } = string.Empty;
+    public string? TraceId { get; set; }
+
 }
