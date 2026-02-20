@@ -1,0 +1,216 @@
+Program.cs Structure – .NET Core API
+
+This document defines the correct logical order for configuring Program.cs in a production-ready .NET Core Web API.
+
+🏗 BUILDER SECTION (Service Configuration)
+
+All service registrations must happen before builder.Build().
+
+✅ Correct Logical Order – Builder
+1️⃣ Logging
+
+Configure structured logging (Serilog or other provider) before anything else.
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+2️⃣ Database
+
+Register DbContext based on environment.
+
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddDbContext<AuthDbContext>(options =>
+        options.UseInMemoryDatabase("AuthDb"));
+}
+else
+{
+    builder.Services.AddDbContext<AuthDbContext>(options =>
+        options.UseSqlServer(
+            builder.Configuration.GetConnectionString("DefaultConnection")));
+}
+
+3️⃣ JWT Configuration
+
+Read and validate JWT settings from configuration.
+
+var jwtSettings = builder.Configuration
+    .GetSection("Jwt")
+    .Get<JwtSettings>()
+    ?? throw new Exception("JWT configuration missing");
+
+4️⃣ Authentication / Authorization
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings.Issuer,
+            ValidAudience = jwtSettings.Audience,
+            IssuerSigningKey =
+                new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(jwtSettings.Secret))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
+5️⃣ Controllers
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter());
+    });
+
+builder.Services.AddEndpointsApiExplorer();
+
+6️⃣ CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod());
+});
+
+7️⃣ Swagger
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "AuthService API",
+        Version = "v1"
+    });
+});
+
+8️⃣ Validation (FluentValidation)
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
+
+9️⃣ Application Services
+builder.Services.AddScoped<IAuthService, AuthServiceImpl>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IJwtService, JwtService>();
+
+🔟 Kestrel
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5081);
+});
+
+🚀 APP SECTION (Middleware Pipeline)
+
+Everything below runs after:
+
+var app = builder.Build();
+
+✅ Correct Logical Order – App
+🟢 1️⃣ Database Reset First (Optional – Dev Only)
+
+Must happen before middleware pipeline runs.
+
+if (app.Environment.IsDevelopment())
+{
+    await DbResetService.ClearUsersAsync(app.Services);
+}
+
+🟢 2️⃣ Global Exception Handling (Early)
+
+Must wrap the entire pipeline.
+
+app.UseMiddleware<GlobalExceptionHandler>();
+
+🟢 3️⃣ Swagger (Development Only)
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+🟢 4️⃣ Routing (Before Auth)
+app.UseRouting();
+
+🟢 5️⃣ CORS
+app.UseCors("AllowAll");
+
+🟢 6️⃣ Authentication
+app.UseAuthentication();
+
+🟢 7️⃣ Authorization
+app.UseAuthorization();
+
+🟢 8️⃣ Map Endpoints (Before Run)
+app.MapControllers();
+
+🟢 9️⃣ app.Run() – ALWAYS LAST
+app.Run();
+
+
+Anything after app.Run() will never execute.
+
+🧠 Visual Summary
+Builder Order
+
+Logging
+
+Database
+
+JWT Config
+
+Authentication / Authorization
+
+Controllers
+
+CORS
+
+Swagger
+
+Validation
+
+Services
+
+Kestrel
+
+App Order
+
+Database Reset
+
+Exception Handling
+
+Swagger
+
+Routing
+
+CORS
+
+Authentication
+
+Authorization
+
+Map Endpoints
+
+Run
+
+🏆 Best Practice Rules
+
+Never register services twice.
+
+Keep builder clean and grouped.
+
+Middleware order matters.
+
+app.Run() is always last.
+
+Exception middleware must be first in pipeline.
+
+Routing must come before authentication.
