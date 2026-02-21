@@ -2,6 +2,10 @@
   <Folder Name="/Solution Items/">
     <File Path="docker-compose.yml" />
   </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/PackageService.Tests/PackageService.Tests.csproj" />
+    <Project Path="Tests/RouteService.Tests/RouteService.Tests.csproj" />
+  </Folder>
   <Project Path="ApiGateway/ApiGateway.csproj">
     <BuildDependency Project="AuthService/AuthService.csproj" />
     <BuildDependency Project="PackageService/PackageService.csproj" />
